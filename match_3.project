@@ -4,6 +4,8 @@
   <Description/>
   <Dependencies/>
   <VirtualDirectory Name="src">
+    <File Name="game.cpp"/>
+    <File Name="game.h"/>
     <File Name="asset_store.h"/>
     <File Name="asset_management.cpp"/>
     <File Name="asset_management.h"/>

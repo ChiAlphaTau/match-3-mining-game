@@ -30,7 +30,7 @@ namespace assets{
         }
         
         bool loadTexture(const std::string& fileName, SDL_Texture*& texture){
-            texture = IMG_LoadTexture(Program::renderer,fileName.c_str());
+            texture = IMG_LoadTexture(program::renderer,fileName.c_str());
             if(texture==NULL){
                 cout << "Couldn't load texture from '" << fileName << "'. Error: '" << IMG_GetError() << "'." << NEWLINE;
                 return false;

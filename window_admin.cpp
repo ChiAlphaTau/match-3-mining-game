@@ -10,7 +10,7 @@
 using namespace util::constants;
 using std::cout;
 
-namespace Program{
+namespace program{
     SDL_Window* window=NULL;
     SDL_Renderer* renderer=NULL;
 
