@@ -4,6 +4,10 @@
   <Description/>
   <Dependencies/>
   <VirtualDirectory Name="src">
+    <File Name="grid.cpp"/>
+    <File Name="coordinate.h"/>
+    <File Name="grid.h"/>
+    <File Name="item.h"/>
     <File Name="game.cpp"/>
     <File Name="game.h"/>
     <File Name="asset_store.h"/>
