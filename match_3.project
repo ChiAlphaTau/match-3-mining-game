@@ -4,6 +4,9 @@
   <Description/>
   <Dependencies/>
   <VirtualDirectory Name="src">
+    <File Name="swap.cpp"/>
+    <File Name="swap.h"/>
+    <File Name="effect.h"/>
     <File Name="coordinate.cpp"/>
     <File Name="grid.cpp"/>
     <File Name="coordinate.h"/>

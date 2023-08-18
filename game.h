@@ -1,6 +1,7 @@
 #pragma once
 
 #include "grid.h"
+#include "effect.h"
 
 #include <SDL2/SDL.h>
 
@@ -13,6 +14,6 @@ namespace game_logic{
         void update(const int dt);
         void draw(const int dt);
         //TODO:cursor stuff.
-        //TODO:effect stuff.
+        void pushEffect(game_logic::effects::Effect* effect);
     }
 }
