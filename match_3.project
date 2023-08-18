@@ -4,6 +4,8 @@
   <Description/>
   <Dependencies/>
   <VirtualDirectory Name="src">
+    <File Name="default_item_rendering.cpp"/>
+    <File Name="default_item_rendering.h"/>
     <File Name="swap.cpp"/>
     <File Name="swap.h"/>
     <File Name="effect.h"/>

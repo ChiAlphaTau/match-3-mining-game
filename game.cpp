@@ -2,9 +2,9 @@
 
 #include "window_admin.h"
 #include "constants.h"
-#include "asset_store.h"
 #include "coordinate.h"
 #include "swap.h"
+#include "default_item_rendering.h"
 
 #include <SDL2/SDL.h>
 
@@ -25,8 +25,8 @@ namespace game_logic::game{
     bool setup(){
         grid=new Grid();
 
-        pushEffect(new game_logic::effects::SwapFailed(grid->peek(Coord{0,1}), grid->peek(Coord{1,1})));
-        pushEffect(new game_logic::effects::SwapFailed(grid->peek(Coord{7,8}), grid->peek(Coord{8,9})));
+        pushEffect(new game_logic::effects::SwapFailed(Coord{0,1}, Coord{1,1}));
+        pushEffect(new game_logic::effects::SwapFailed(Coord{7,8}, Coord{8,9}));
 
         return true;
     }
@@ -49,20 +49,17 @@ namespace game_logic::game{
         //TODO:state change based on effectLoop return value.
     }
     void draw(const int dt){
+        //Clear screen, draw items in grid, then get effects to draw themselves.
         SDL_RenderClear(program::renderer);
-        SDL_Rect dstRect{0,0,CELL_LENGTH,CELL_LENGTH};
-        const SDL_Rect* srcRect;//That is (variable pointer) to (const SDL_Rect).
         Item* item;
         for(int x=0; x<CELL_COUNT_HORIZONTAL; ++x){
             for(int y=0; y<CELL_COUNT_VERTICAL; ++y){
                 item=grid->peek(Coord{x,y});
                 if(item==NULL)continue;
-                srcRect=&GEM_TEXTURE_REGIONS[item->colour];
-                dstRect.x = item->x*CELL_LENGTH;
-                dstRect.y = item->y*CELL_LENGTH;
-                SDL_RenderCopy(program::renderer,assets::store::tiles,srcRect,&dstRect);
+                game_logic::items::render::renderItemDefaultly(item);
             }
         }
+        for(Effect* effect:effectList)  effect->draw(dt);
     }
     void pushEffect(game_logic::effects::Effect* effect){
         pendingEffects.push_back(effect);
