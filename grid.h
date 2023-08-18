@@ -5,6 +5,7 @@
 #include "coordinate.h"
 
 using game_logic::items::Item;
+using game_logic::items::Coord;
 
 namespace game_logic{
     class Grid{
@@ -13,9 +14,9 @@ namespace game_logic{
     public:
         Grid();
         ~Grid();
-        Item* peek(Coord coord);
-        Item* claim(Coord coord);
-        void destroy(Coord coord);
-        void give(Coord coord, Item* item);
+        Item* peek(Coord const& coord);
+        Item* claim(Coord const& coord);
+        void destroy(Coord const& coord);
+        void give(Coord const& coord, Item* item);
     };
 }

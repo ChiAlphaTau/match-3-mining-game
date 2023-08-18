@@ -24,37 +24,24 @@ namespace game_logic{
             }
         }
     }
-    bool coordIsValid(Coord coord){//TODO:Make coord a proper class instead?
-        return
-            coord.first  >=0    && coord.first  < util::constants::CELL_COUNT_HORIZONTAL &&
-            coord.second >=0    && coord.second < util::constants::CELL_COUNT_VERTICAL;
+    Item* Grid::peek(Coord const& coord){
+        return items[coord.x][coord.y];
     }
-    Item* Grid::peek(Coord coord){
-        if(coordIsValid(coord)){
-            return items[coord.first][coord.second];
-        }
-        return NULL;
+    Item* Grid::claim(Coord const& coord){
+        Item* returned=items[coord.x][coord.y];
+        items[coord.x][coord.y] = NULL;
+        return returned;
     }
-    Item* Grid::claim(Coord coord){
-        if(coordIsValid(coord)){
-            Item* returned=items[coord.first][coord.second];
-            items[coord.first][coord.second] = NULL;
-            return returned;
-        }
-        return NULL;
-    }
-    void Grid::destroy(Coord coord){
-        if(coordIsValid(coord) && items[coord.first][coord.second]!=NULL){
-            delete items[coord.first][coord.second];
-            items[coord.first][coord.second]=NULL;
+    void Grid::destroy(Coord const& coord){
+        if(items[coord.x][coord.y]!=NULL){
+            delete items[coord.x][coord.y];
+            items[coord.x][coord.y]=NULL;
         }
     }
-    void Grid::give(Coord coord, Item* item){
-        if(coordIsValid(coord)){
-            if(items[coord.first][coord.second]!=NULL){
-                destroy(coord);
-            }
-            items[coord.first][coord.second]=item;
+    void Grid::give(Coord const& coord, Item* item){
+        if(items[coord.x][coord.y]!=NULL){
+            destroy(coord);
         }
+        items[coord.x][coord.y]=item;
     }
 }

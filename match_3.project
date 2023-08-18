@@ -4,6 +4,7 @@
   <Description/>
   <Dependencies/>
   <VirtualDirectory Name="src">
+    <File Name="coordinate.cpp"/>
     <File Name="grid.cpp"/>
     <File Name="coordinate.h"/>
     <File Name="grid.h"/>
