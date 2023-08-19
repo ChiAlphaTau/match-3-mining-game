@@ -13,6 +13,12 @@ namespace game_logic::items{
     bool Coord::operator==(Coord const& other){
         return x==other.x && y==other.y;
     }
+    bool Coord::isAdjacentTo(Coord const& other){
+        return
+            (x-other.x)*(x-other.x) +
+            (y-other.y)*(y-other.y)
+            ==1;
+    }
     bool Coord::moveLeft(){
         --x;
         if(x<0){x=0;return false;}

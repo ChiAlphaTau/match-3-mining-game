@@ -13,7 +13,7 @@ namespace game_logic{
         void handleEvent(const SDL_Event& event, const int dt);
         void update(const int dt);
         void draw(const int dt);
-        //TODO:cursor stuff.
+        //TODO:Game state stuff.
         void pushEffect(game_logic::effects::Effect* effect);
     }
 }
