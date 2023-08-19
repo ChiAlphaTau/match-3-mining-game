@@ -52,11 +52,12 @@ namespace game_logic::game{
         //Clear screen, draw items in grid, then get effects to draw themselves.
         SDL_RenderClear(program::renderer);
         Item* item;
-        for(int x=0; x<CELL_COUNT_HORIZONTAL; ++x){
-            for(int y=0; y<CELL_COUNT_VERTICAL; ++y){
-                item=grid->peek(Coord{x,y});
+        Coord coord{0,0};
+        for(; coord.x<CELL_COUNT_HORIZONTAL; ++coord.x){
+            for(coord.y=0; coord.y<CELL_COUNT_VERTICAL; ++coord.y){
+                item=grid->peek(coord);
                 if(item==NULL)continue;
-                game_logic::items::render::renderItemDefaultly(item);
+                game_logic::items::render::renderItemDefaultly(item,coord);
             }
         }
         for(Effect* effect:effectList)  effect->draw(dt);
