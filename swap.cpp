@@ -1,7 +1,6 @@
 #include "swap.h"
 
 #include "game.h"
-#include "default_item_rendering.h"
 
 using game_logic::items::Coord;
 using game_logic::items::Item;
@@ -37,8 +36,8 @@ namespace game_logic::effects{
         else{//Otherise are on the return, so will be setting coords for that.
             proportion = 2 - progress/(float)SWAP_TIME;
         }
-        game_logic::items::render::renderItemDefaultly(items[0],startingCoords[0], proportion*dx, proportion*dy);
-        game_logic::items::render::renderItemDefaultly(items[1],startingCoords[1],-proportion*dx,-proportion*dy);
+        items[0]->draw(dt,startingCoords[0], proportion*dx, proportion*dy);
+        items[1]->draw(dt,startingCoords[1],-proportion*dx,-proportion*dy);
     }
     SwapFailed::~SwapFailed(){
         for(int i=0;i<2;++i){

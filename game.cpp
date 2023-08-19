@@ -4,7 +4,7 @@
 #include "constants.h"
 #include "coordinate.h"
 #include "swap.h"
-#include "default_item_rendering.h"
+#include "item_vanilla.h"
 
 #include <SDL2/SDL.h>
 
@@ -24,6 +24,11 @@ namespace game_logic::game{
 
     bool setup(){
         grid=new Grid();
+        for(Coord coord{0,0}; coord.x<CELL_COUNT_HORIZONTAL; ++coord.x){
+            for(coord.y=0; coord.y<CELL_COUNT_VERTICAL; ++coord.y){
+                grid->give(coord,new game_logic::items::ItemVanilla{items::colourFromInt((coord.x+(coord.y%2))%util::constants::NUMBER_OF_COLOURS)});
+            }
+        }
 
         pushEffect(new game_logic::effects::SwapFailed(Coord{0,1}, Coord{1,1}));
         pushEffect(new game_logic::effects::SwapFailed(Coord{7,8}, Coord{8,9}));
@@ -52,12 +57,11 @@ namespace game_logic::game{
         //Clear screen, draw items in grid, then get effects to draw themselves.
         SDL_RenderClear(program::renderer);
         Item* item;
-        Coord coord{0,0};
-        for(; coord.x<CELL_COUNT_HORIZONTAL; ++coord.x){
+        for(Coord coord{0,0}; coord.x<CELL_COUNT_HORIZONTAL; ++coord.x){
             for(coord.y=0; coord.y<CELL_COUNT_VERTICAL; ++coord.y){
                 item=grid->peek(coord);
                 if(item==NULL)continue;
-                game_logic::items::render::renderItemDefaultly(item,coord);
+                item->draw(dt,coord);
             }
         }
         for(Effect* effect:effectList)  effect->draw(dt);

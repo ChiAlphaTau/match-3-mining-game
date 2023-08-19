@@ -10,7 +10,7 @@ namespace game_logic{
     Grid::Grid(){
         for(int i=0; i<util::constants::CELL_COUNT_HORIZONTAL; ++i){
             for(int j=0; j<util::constants::CELL_COUNT_VERTICAL; ++j){
-                items[i][j] = new Item{items::colourFromInt((i+(j%2))%util::constants::NUMBER_OF_COLOURS)};
+                items[i][j] = NULL;
             }
         }
     }
