@@ -27,6 +27,7 @@ namespace game_logic::game{
     void drawSelectionIndicator();
     void moveSelectedFromMouseUp(SDL_MouseButtonEvent const& event);
     void moveSelectedFromKeyUp(SDL_KeyboardEvent const& event);
+    void makeSwap(game_logic::items::Direction const direction);
 
     bool setup(){
         grid=new Grid();
@@ -136,10 +137,11 @@ namespace game_logic::game{
     void moveSelectedFromMouseUp(SDL_MouseButtonEvent const& event){
         Coord clickedCoord=getCoordOfScreenPosition(event.x,event.y);
         if(selected){
-            if(selectionPosition.isAdjacentTo(clickedCoord)){
+            game_logic::items::Direction movementDirection = clickedCoord-selectionPosition;
+            if(movementDirection!=game_logic::items::Direction::NONE){
                 if(grid->peek(selectionPosition)!=NULL && grid->peek(clickedCoord)!=NULL){
-                    pushEffect(new game_logic::effects::SwapFailed(selectionPosition,clickedCoord));
-                    selected=false;
+                    makeSwap(movementDirection);
+                    selectionPosition=clickedCoord;
                 }
                 else{
                     selectionPosition=clickedCoord; selected=true;
@@ -157,8 +159,37 @@ namespace game_logic::game{
         }
     }
     void moveSelectedFromKeyUp(SDL_KeyboardEvent const& event){
-        if(event.keysym.sym==SDLK_RETURN || event.keysym.sym==SDLK_KP_ENTER){
+        using game_logic::items::Direction;
+        Direction arrowDirection{Direction::NONE};
+        switch(event.keysym.sym){
+            case SDLK_RETURN: case SDLK_KP_ENTER:
                 selected=!selected;
+                break;
+            case SDLK_UP:case SDLK_w:
+                arrowDirection=Direction::UP;
+                break;
+            case SDLK_DOWN:case SDLK_s:
+                arrowDirection=Direction::DOWN;
+                break;
+            case SDLK_LEFT:case SDLK_a:
+                arrowDirection=Direction::LEFT;
+                break;
+            case SDLK_RIGHT:case SDLK_d:
+                arrowDirection=Direction::RIGHT;
+                break;
+        }
+
+        if(arrowDirection!=Direction::NONE && selectionPosition<arrowDirection){
+            if(selected){
+                makeSwap(arrowDirection);
             }
+            selectionPosition+=arrowDirection;
+        }
+    }
+    void makeSwap(game_logic::items::Direction const direction){
+        if(direction!=game_logic::items::Direction::NONE){//Shouldn't be NONE, but if pass 2 copies of the same coord, will have 2 copies of same Item*, thinking they are different, and presumably a double free will occur eventually.
+            pushEffect(new game_logic::effects::SwapFailed(selectionPosition,selectionPosition+direction));
+        }
+        selected=false;
     }
 }
