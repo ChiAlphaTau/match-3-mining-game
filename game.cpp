@@ -20,6 +20,7 @@ namespace game_logic::game{
     std::vector<Effect*> pendingEffects{};
     Coord selectionPosition{0,0};
     bool selected{false};
+    BoardState boardState{AWAITING_INPUT};
 
     bool effectLoop(const int dt);
     void shuffleAboutEffects();
@@ -58,9 +59,42 @@ namespace game_logic::game{
         }
     }
     void update(const int dt){
-        effectLoop(dt);
+        /*
+         * WARNING: I can imagine weird stuff happening if an event is added during the shuffleAboutEffects the update call after notStillBusy==true.
+         * This is because it may want to say that it is still busy in the previous, but finds it in the new state.
+         * You might purposefully add an Effect to be busy in the next state, so adding an Effect that will be busy isn't inherently an error.
+         * Just if weird stuff is happening, this may be the cause.
+         */
         shuffleAboutEffects();
-        //TODO:state change based on effectLoop return value.
+        bool notStillBusy = effectLoop(dt);
+        if(notStillBusy){
+            switch(boardState){
+                case AWAITING_INPUT:
+                    //Do nothing - carry on waiting.
+                    break;
+                case TEMPORARILY_NOT_ACCEPTING_INPUT:
+                    boardState=AWAITING_INPUT;//Donw with whatever graphical thing you were dowing, and so are accepting input once more.
+                    break;
+                case RESOLVING:
+                    //TODO: check for falls (and make the following if statement work.)
+                    //if(there are falls){
+                        //boardState=MOVING;
+                    //}
+                    //else{
+                        boardState=AWAITING_INPUT;
+                    //}
+                    break;
+                case MOVING:
+                    //TODO: check for matches (and make the following if statement work.)
+                    //if(more matches){
+                        //boardState=RESOLVING;
+                    //}
+                    //else{
+                        boardState=AWAITING_INPUT;
+                    //}
+                    break;
+            }
+        }
     }
     void draw(const int dt){
         //Clear screen, draw items in grid, then get effects to draw themselves.
@@ -79,6 +113,9 @@ namespace game_logic::game{
     }
     void pushEffect(game_logic::effects::Effect* effect){
         pendingEffects.push_back(effect);
+    }
+    BoardState getBoardState(){
+        return boardState;
     }
     bool effectLoop(const int dt){
         bool notStillBusy{true};
@@ -136,26 +173,31 @@ namespace game_logic::game{
     }
     void moveSelectedFromMouseUp(SDL_MouseButtonEvent const& event){
         Coord clickedCoord=getCoordOfScreenPosition(event.x,event.y);
-        if(selected){
-            game_logic::items::Direction movementDirection = clickedCoord-selectionPosition;
-            if(movementDirection!=game_logic::items::Direction::NONE){
-                if(grid->peek(selectionPosition)!=NULL && grid->peek(clickedCoord)!=NULL){
-                    makeSwap(movementDirection);
-                    selectionPosition=clickedCoord;
+        if(boardState==AWAITING_INPUT){
+            if(selected){
+                game_logic::items::Direction movementDirection = clickedCoord-selectionPosition;
+                if(movementDirection!=game_logic::items::Direction::NONE){
+                    if(grid->peek(selectionPosition)!=NULL && grid->peek(clickedCoord)!=NULL){
+                        makeSwap(movementDirection);
+                        selectionPosition=clickedCoord;
+                    }
+                    else{
+                        selectionPosition=clickedCoord; selected=true;
+                    }
+                }
+                else if(selectionPosition==clickedCoord){
+                    selected=false;
                 }
                 else{
                     selectionPosition=clickedCoord; selected=true;
                 }
-            }
-            else if(selectionPosition==clickedCoord){
-                selected=false;
             }
             else{
                 selectionPosition=clickedCoord; selected=true;
             }
         }
         else{
-            selectionPosition=clickedCoord; selected=true;
+            selectionPosition=clickedCoord;
         }
     }
     void moveSelectedFromKeyUp(SDL_KeyboardEvent const& event){
@@ -163,7 +205,7 @@ namespace game_logic::game{
         Direction arrowDirection{Direction::NONE};
         switch(event.keysym.sym){
             case SDLK_RETURN: case SDLK_KP_ENTER:
-                selected=!selected;
+                if(boardState==AWAITING_INPUT)  selected=!selected;
                 break;
             case SDLK_UP:case SDLK_w:
                 arrowDirection=Direction::UP;
@@ -188,7 +230,8 @@ namespace game_logic::game{
     }
     void makeSwap(game_logic::items::Direction const direction){
         if(direction!=game_logic::items::Direction::NONE){//Shouldn't be NONE, but if pass 2 copies of the same coord, will have 2 copies of same Item*, thinking they are different, and presumably a double free will occur eventually.
-            pushEffect(new game_logic::effects::SwapFailed(selectionPosition,selectionPosition+direction));
+            pushEffect(new game_logic::effects::Swap<false>(selectionPosition,selectionPosition+direction));
+            boardState=TEMPORARILY_NOT_ACCEPTING_INPUT;
         }
         selected=false;
     }
