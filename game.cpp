@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <iterator>
+#include <iostream>
 
 using namespace util::constants;
 using game_logic::effects::Effect;
@@ -28,7 +29,10 @@ namespace game_logic::game{
     void drawSelectionIndicator();
     void moveSelectedFromMouseUp(SDL_MouseButtonEvent const& event);
     void moveSelectedFromKeyUp(SDL_KeyboardEvent const& event);
-    void makeSwap(game_logic::items::Direction const direction);
+    void makeSwap(Coord const origin, game_logic::items::Direction const direction);
+    bool moveInThatDirectionAndReportWhetherItIsTheSameColour(game_logic::items::Coord &location, game_logic::items::Direction const direction, game_logic::items::Item::Colour const colour);
+    bool isSwapLegalInSingleDirection(Coord const origin, game_logic::items::Direction direction);
+    bool isSwapLegal(Coord const origin, game_logic::items::Direction const direction);
 
     bool setup(){
         grid=new Grid();
@@ -178,7 +182,7 @@ namespace game_logic::game{
                 game_logic::items::Direction movementDirection = clickedCoord-selectionPosition;
                 if(movementDirection!=game_logic::items::Direction::NONE){
                     if(grid->peek(selectionPosition)!=NULL && grid->peek(clickedCoord)!=NULL){
-                        makeSwap(movementDirection);
+                        makeSwap(selectionPosition,movementDirection);
                         selectionPosition=clickedCoord;
                     }
                     else{
@@ -223,16 +227,86 @@ namespace game_logic::game{
 
         if(arrowDirection!=Direction::NONE && selectionPosition<arrowDirection){
             if(selected){
-                makeSwap(arrowDirection);
+                makeSwap(selectionPosition,arrowDirection);
             }
             selectionPosition+=arrowDirection;
         }
     }
-    void makeSwap(game_logic::items::Direction const direction){
+    void makeSwap(Coord const origin, game_logic::items::Direction const direction){
         if(direction!=game_logic::items::Direction::NONE){//Shouldn't be NONE, but if pass 2 copies of the same coord, will have 2 copies of same Item*, thinking they are different, and presumably a double free will occur eventually.
-            pushEffect(new game_logic::effects::Swap<false>(selectionPosition,selectionPosition+direction));
-            boardState=TEMPORARILY_NOT_ACCEPTING_INPUT;
+            if(isSwapLegal(origin,direction)){
+                pushEffect(new game_logic::effects::Swap<true>(origin,origin+direction));
+                boardState=MOVING;
+            }
+            else{
+                pushEffect(new game_logic::effects::Swap<false>(origin,origin+direction));
+                boardState=TEMPORARILY_NOT_ACCEPTING_INPUT;
+            }
         }
         selected=false;
+    }
+    bool moveInThatDirectionAndReportWhetherItIsTheSameColour(game_logic::items::Coord &location, game_logic::items::Direction const direction, game_logic::items::Item::Colour const colour){
+        if(location<direction){
+            location += direction;
+            Item const* item=grid->peek(location);
+            if(item!=NULL){
+                if(item->colour == colour){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    bool isSwapLegalInSingleDirection(Coord const origin, game_logic::items::Direction direction){
+        Item const* item=grid->peek(origin);//Origin is where the item came from.
+        if(item==NULL)return false;
+        game_logic::items::Item::Colour const colour = item->colour;
+        Coord const start=origin+direction;//STart is where item is going, so where match checks are from.
+        Coord checking{start};
+
+        //First try going forward 2.
+        if(
+            moveInThatDirectionAndReportWhetherItIsTheSameColour(checking,direction,colour) &&
+            moveInThatDirectionAndReportWhetherItIsTheSameColour(checking,direction,colour)
+        )   return true;
+
+        //Next try going anticlockwise 1.
+        direction=direction.anticlockwise();
+        checking=start;
+        if(moveInThatDirectionAndReportWhetherItIsTheSameColour(checking,direction,colour)){
+            std::cout << "Can go 1 anticlokwise.\n";
+            //Then check if can make a 2nd anticlockwise.
+            if(moveInThatDirectionAndReportWhetherItIsTheSameColour(checking,direction,colour)){
+                std::cout << "Can go 2 anticlokwise.\n";
+                return true;
+            }
+
+            //If can't see if have a match 1 anticlockwise, 1 clockwise.
+            else{
+                checking=start;
+                std::cout << "Elsetato\n";
+                if(moveInThatDirectionAndReportWhetherItIsTheSameColour(checking,-direction,colour))
+                    {
+                        std::cout << "And can go back.\n";
+                        return true;
+                    }
+            }
+        }
+
+        //Next try going clockwise 2.
+        checking=start;
+        direction=-direction;
+        if(
+            moveInThatDirectionAndReportWhetherItIsTheSameColour(checking,direction,colour) &&
+            moveInThatDirectionAndReportWhetherItIsTheSameColour(checking,direction,colour)
+        )   return true;
+
+        //Run out of stuff to check.
+        return false;
+    }
+    bool isSwapLegal(Coord const origin, game_logic::items::Direction const direction){
+        return
+            isSwapLegalInSingleDirection(origin,direction) ||
+            isSwapLegalInSingleDirection(origin+direction,-direction);
     }
 }
