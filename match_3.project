@@ -4,6 +4,8 @@
   <Description/>
   <Dependencies/>
   <VirtualDirectory Name="src">
+    <File Name="board_logic.cpp"/>
+    <File Name="board_logic.h"/>
     <File Name="item_vanilla.cpp"/>
     <File Name="item_vanilla.h"/>
     <File Name="swap.cpp"/>

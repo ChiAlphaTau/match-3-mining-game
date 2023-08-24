@@ -5,12 +5,12 @@
 #include "coordinate.h"
 #include "swap.h"
 #include "item_vanilla.h"
+#include "board_logic.h"
 
 #include <SDL2/SDL.h>
 
 #include <vector>
 #include <iterator>
-#include <iostream>
 
 using namespace util::constants;
 using game_logic::effects::Effect;
@@ -30,7 +30,6 @@ namespace game_logic::game{
     void moveSelectedFromMouseUp(SDL_MouseButtonEvent const& event);
     void moveSelectedFromKeyUp(SDL_KeyboardEvent const& event);
     void makeSwap(Coord const origin, game_logic::items::Direction const direction);
-    bool moveInThatDirectionAndReportWhetherItIsTheSameColour(game_logic::items::Coord &location, game_logic::items::Direction const direction, game_logic::items::Item::Colour const colour);
     bool isSwapLegalInSingleDirection(Coord const origin, game_logic::items::Direction direction);
     bool isSwapLegal(Coord const origin, game_logic::items::Direction const direction);
 
@@ -80,22 +79,20 @@ namespace game_logic::game{
                     boardState=AWAITING_INPUT;//Donw with whatever graphical thing you were dowing, and so are accepting input once more.
                     break;
                 case RESOLVING:
-                    //TODO: check for falls (and make the following if statement work.)
-                    //if(there are falls){
-                        //boardState=MOVING;
-                    //}
-                    //else{
+                    if(board_update::tryToMakeFallsHappen()){
+                        boardState=MOVING;
+                    }
+                    else{
                         boardState=AWAITING_INPUT;
-                    //}
+                    }
                     break;
                 case MOVING:
-                    //TODO: check for matches (and make the following if statement work.)
-                    //if(more matches){
-                        //boardState=RESOLVING;
-                    //}
-                    //else{
+                    if(board_update::tryToFindMatches()){
+                        boardState=RESOLVING;
+                    }
+                    else{
                         boardState=AWAITING_INPUT;
-                    //}
+                    }
                     break;
             }
         }
@@ -245,19 +242,8 @@ namespace game_logic::game{
         }
         selected=false;
     }
-    bool moveInThatDirectionAndReportWhetherItIsTheSameColour(game_logic::items::Coord &location, game_logic::items::Direction const direction, game_logic::items::Item::Colour const colour){
-        if(location<direction){
-            location += direction;
-            Item const* item=grid->peek(location);
-            if(item!=NULL){
-                if(item->colour == colour){
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
     bool isSwapLegalInSingleDirection(Coord const origin, game_logic::items::Direction direction){
+        using board_update::moveInThatDirectionAndReportWhetherItIsTheSameColour;
         Item const* item=grid->peek(origin);//Origin is where the item came from.
         if(item==NULL)return false;
         game_logic::items::Item::Colour const colour = item->colour;
@@ -274,20 +260,15 @@ namespace game_logic::game{
         direction=direction.anticlockwise();
         checking=start;
         if(moveInThatDirectionAndReportWhetherItIsTheSameColour(checking,direction,colour)){
-            std::cout << "Can go 1 anticlokwise.\n";
             //Then check if can make a 2nd anticlockwise.
-            if(moveInThatDirectionAndReportWhetherItIsTheSameColour(checking,direction,colour)){
-                std::cout << "Can go 2 anticlokwise.\n";
+            if(moveInThatDirectionAndReportWhetherItIsTheSameColour(checking,direction,colour))
                 return true;
-            }
 
             //If can't see if have a match 1 anticlockwise, 1 clockwise.
             else{
                 checking=start;
-                std::cout << "Elsetato\n";
                 if(moveInThatDirectionAndReportWhetherItIsTheSameColour(checking,-direction,colour))
                     {
-                        std::cout << "And can go back.\n";
                         return true;
                     }
             }
