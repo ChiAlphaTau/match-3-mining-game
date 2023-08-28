@@ -7,6 +7,7 @@
 #include "item_vanilla.h"
 
 #include <vector>
+#include <iostream>//TODO:remove this once actually spawn the special items.
 
 using game_logic::game::grid;
 using game_logic::items::Coord;
@@ -16,25 +17,108 @@ using util::constants::CELL_COUNT_HORIZONTAL;
 using util::constants::CELL_COUNT_VERTICAL;
 
 namespace game_logic::game::board_update{
-    bool tryToFindMatchesInDirection(bool const upInsteadOfRight, bool (&shouldGo)[CELL_COUNT_HORIZONTAL][CELL_COUNT_VERTICAL]){
+    class Consecutive{
+    public:
+        Coord start;
+        bool downInsteadOfRight;
+        Colour colour;
+        int length;
+        int spotsFree;
+        std::vector<bool> taken;
+        Direction direction()const{
+            return downInsteadOfRight ? Direction::DOWN : Direction::RIGHT;
+        }
+        void takeAt(int index){
+            taken[index]=true;
+            --spotsFree;
+        }
+        Consecutive(Coord const start_val, bool const downInsteadOfRight_val, Colour const colour_val, int const length_val):
+            start{start_val}, downInsteadOfRight{downInsteadOfRight_val}, colour{colour_val}, length{length_val},
+            spotsFree{length_val}, taken{std::vector<bool>(length_val,false)}{ }
+    };
+    void tryToIntersect(Consecutive hori, Consecutive vert){
+        if(hori.start.x <= vert.start.x && vert.start.x < (hori.start.x+hori.length) &&
+           vert.start.y <= hori.start.y && hori.start.y < (vert.start.y+vert.length)){
+            //The two intersect.
+            hori.takeAt(vert.start.x-hori.start.x);
+            vert.takeAt(hori.start.y-vert.start.y);
+            //TODO:Spawn a star at Coord{vert.start.x,hori.start.y} of colour vert.colour (which equals hori.colour).
+            std::cout << "Spawn a '"<<vert.colour<<"' star at ("<<vert.start.x<<","<<hori.start.y<<").\n";
+        }
+    }
+    void generateStars(std::vector<Consecutive> const& horis, std::vector<Consecutive> const& verts){
+        for(auto hori:horis){
+            for(auto vert:verts){
+                tryToIntersect(hori,vert);
+            }
+        }
+    }
+    void generateRainbows(Consecutive & run){
+        for(int runLength=5;runLength<=run.length && run.spotsFree>0;++runLength){
+            int index{0};
+            if(run.length%2!=0){//If odd.
+                int const middle{(run.length-1)/2};
+                if(!run.taken[middle])  index=middle;
+                else{
+                    for(int shift=0;true;++shift){
+                        if     (!run.taken[middle-shift])   {index=middle-shift; break;}
+                        else if(!run.taken[middle+shift])   {index=middle+shift; break;}
+                    }
+                }
+            }
+            else{
+                int const middleRoundDown=run.length/2 - 1;
+                for(int shift=0;true;++shift){
+                    if     (!run.taken[middleRoundDown  -shift])    {index=middleRoundDown  -shift; break;}
+                    else if(!run.taken[middleRoundDown+1+shift])    {index=middleRoundDown+1+shift; break;}
+                }
+            }
+            Coord spawnPoint{run.start};
+            Direction direction=run.direction();
+            for(int i=0;i<index;++i)    spawnPoint+=direction;
+
+            //TODO:spawn rainbow at spawnPoint.
+            std::cout << "Spawn a rainbow at ("<<spawnPoint.x<<","<<spawnPoint.y<<").\n";
+            run.takeAt(index);
+        }
+    }
+    void generateBombs(Consecutive & run){
+        if(run.length==4 && run.spotsFree>0){
+            for(int index=run.length-1; index>=0; --index){
+                if(!run.taken[index]){
+                    Coord spawnPoint{run.start};
+                    Direction direction=run.direction();
+                    for(int step=0;step<index;++step)   spawnPoint+=direction;
+                    //TODO:spawn bomb at spawnPoint of colour run.colour.
+                    std::cout << "Spawn a '"<<run.colour<<"' bomb at ("<<spawnPoint.x<<","<<spawnPoint.y<<").\n";
+                    run.takeAt(index);
+                    break;
+                }
+            }
+        }
+    }
+
+    bool tryToFindMatchesInDirection(bool const downInsteadOfRight, bool (&shouldGo)[CELL_COUNT_HORIZONTAL][CELL_COUNT_VERTICAL], std::vector<Consecutive>& runs){
         //I shall be commenting as if forward is vertical.
-        Direction const forward  = upInsteadOfRight ? Direction::DOWN  : Direction::RIGHT;
-        Direction const sideways = upInsteadOfRight ? Direction::RIGHT : Direction::DOWN;
+        Direction const forward  = downInsteadOfRight ? Direction::DOWN  : Direction::RIGHT;
+        Direction const sideways = downInsteadOfRight ? Direction::RIGHT : Direction::DOWN;
         bool foundAny{false};
 
         Coord start{0,0};
         while(true){
             Coord checking{start};
-            while(checking<forward){
+            while(checking<forward){//While the cell that you are checking has at least one cell after it.
                 while(grid->peek(checking)==NULL){//Find the next non-null grid entry in this column. If no more exist, then continue outer for.
                     if(checking<forward)   checking+=forward;
                     else                    goto nextSidewaysLoopIteration;
                 }
-                Colour colour=grid->peek(checking)->colour;//Get the colour of the item.
+                Colour const colour=grid->peek(checking)->colour;//Get the colour of the item.
+                Coord const runStart{checking};//Record where the potential run started, for generating the consecutive.
                 if(moveInThatDirectionAndReportWhetherItIsTheSameColour(checking,forward,colour)){//If the next in the column is the same colour.
                     if(moveInThatDirectionAndReportWhetherItIsTheSameColour(checking,forward,colour)){//Then also check the one after. If it is also the same colour, then we have a match.
                         //Record that found some.
                         foundAny=true;
+                        int runLength{3};
                         //Mark the 3 found items on the grid.
                             shouldGo[checking.x][checking.y]=true;
                         Coord recent=checking+-forward;
@@ -44,7 +128,10 @@ namespace game_logic::game::board_update{
                         //If the match extends beyond, then mark those too.
                         while(moveInThatDirectionAndReportWhetherItIsTheSameColour(checking,forward,colour)){
                             shouldGo[checking.x][checking.y]=true;
+                            ++runLength;
                         }
+                        std::cout << "A run of length '"<<runLength<<"'.\n";
+                        runs.push_back(Consecutive(runStart, downInsteadOfRight, colour, runLength));
                     }
                 }
             }
@@ -118,11 +205,19 @@ namespace game_logic::game::board_update{
             }
         }
 
-        bool foundAny=  tryToFindMatchesInDirection(true,shouldGo);
-        foundAny|=      tryToFindMatchesInDirection(false,shouldGo);
+        std::vector<Consecutive> horis{};
+        std::vector<Consecutive> verts{};
+
+        bool foundAny=  tryToFindMatchesInDirection(true,shouldGo,verts);
+        foundAny|=      tryToFindMatchesInDirection(false,shouldGo,horis);
         
         if(foundAny){
             removeMatches(shouldGo);
+            generateStars(horis,verts);
+            for(auto run:verts) generateRainbows(run);
+            for(auto run:horis) generateRainbows(run);
+            for(auto run:verts) generateBombs(run);
+            for(auto run:horis) generateBombs(run);
         }
 
         return foundAny;
