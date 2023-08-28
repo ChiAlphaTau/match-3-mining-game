@@ -63,13 +63,14 @@ namespace game_logic::game{
     }
     void update(const int dt){
         /*
-         * WARNING: I can imagine weird stuff happening if an event is added during the shuffleAboutEffects the update call after notStillBusy==true.
+         * WARNING: I can imagine weird stuff happening if an event is added during the shuffleAboutEffects  call after notStillBusy==true.
          * This is because it may want to say that it is still busy in the previous, but finds it in the new state.
          * You might purposefully add an Effect to be busy in the next state, so adding an Effect that will be busy isn't inherently an error.
          * Just if weird stuff is happening, this may be the cause.
          */
-        shuffleAboutEffects();
+        shuffleAboutEffects();//So any effects from event handling are looped over.
         bool notStillBusy = effectLoop(dt);
+        shuffleAboutEffects();//So any effects from effectLoop are drawn.
         if(notStillBusy){
             switch(boardState){
                 case AWAITING_INPUT:
@@ -95,6 +96,7 @@ namespace game_logic::game{
                     }
                     break;
             }
+            shuffleAboutEffects();//So any effects from state changing are drawn.
         }
     }
     void draw(const int dt){

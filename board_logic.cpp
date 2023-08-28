@@ -3,6 +3,10 @@
 #include "game.h"
 #include "coordinate.h"
 #include "constants.h"
+#include "falling.h"
+#include "item_vanilla.h"
+
+#include <vector>
 
 using game_logic::game::grid;
 using game_logic::items::Coord;
@@ -63,6 +67,49 @@ namespace game_logic::game::board_update{
         }
     }
 
+    int tryToMakeFallsHappenInColumn(int const x){
+        int fall{0};//Used to determine how far to make the items fall by, and returned at the end to say how many items to spawn.
+        std::vector<Item*> claimed{};
+        bool hitTopWhichIsNotNull{false};
+        Coord head{x,CELL_COUNT_VERTICAL-1};
+
+        //Skip past the bottom non-null entries, returning 0 if there are no falls.
+        while(grid->peek(head)!=NULL){
+            if(head<Direction::UP)  head+=Direction::UP;
+            else                    return 0;
+        }
+
+        //Then until run out of cells to check.
+        while(true){
+            //Record destination of bottom falling item.
+            int const bottom{head.y};
+            //Work out how many consecutive gaps there are, returning total fall if run out of cells to check (i.e. if top cell is empty).
+            do{
+                ++fall;
+                if(head<Direction::UP)  head+=Direction::UP;
+                else                    return fall;
+            } while(grid->peek(head)==NULL);
+            //Then gather together the consecutive (non-null) items.
+            do{
+                claimed.push_back(grid->claim(head));
+                if(head<Direction::UP)  head+=Direction::UP;
+                else                    {hitTopWhichIsNotNull=true; break;}
+            } while(grid->peek(head)!=NULL);
+            //Then create a fall out of those gathered items.
+            pushEffect(new game_logic::effects::Fall(game_logic::items::Coord(x,bottom),fall,claimed));
+            claimed.clear();
+            if(hitTopWhichIsNotNull)    return fall;//If you aborted the previous loop due to running out of cells to check (i.e. top cell is occupied), then return fall.
+        }
+    }
+    void spawnItems(int const x, int const count){
+        game_logic::items::Coord bottomCoord{x,count-1};
+        std::vector<Item*> spawned{};
+        for(int i=0; i<count; ++i){
+            spawned.push_back(new game_logic::items::ItemVanilla(game_logic::items::colourFromInt((i+x)%util::constants::NUMBER_OF_COLOURS)));//TODO:Make colour random.
+        }
+        pushEffect(new game_logic::effects::Fall(bottomCoord,count,spawned));
+    }
+
     bool tryToFindMatches(){
         bool shouldGo[CELL_COUNT_HORIZONTAL][CELL_COUNT_VERTICAL];
         for(int i=0;i<CELL_COUNT_HORIZONTAL;++i){
@@ -81,8 +128,15 @@ namespace game_logic::game::board_update{
         return foundAny;
     }
     bool tryToMakeFallsHappen(){
-        //TODO:Implement properly.
-        return false;
+        bool anyFalls{false};
+        for(int x=0; x<CELL_COUNT_HORIZONTAL; ++x){
+            int fallCount=tryToMakeFallsHappenInColumn(x);
+            if(fallCount>0){
+                anyFalls=true;
+                spawnItems(x,fallCount);
+            }
+        }
+        return anyFalls;
     }
     bool moveInThatDirectionAndReportWhetherItIsTheSameColour(game_logic::items::Coord &location, game_logic::items::Direction const direction, game_logic::items::Item::Colour const colour){
         if(location<direction){
