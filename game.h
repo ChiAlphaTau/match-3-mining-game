@@ -21,5 +21,11 @@ namespace game_logic{
             MOVING,//To be followed by a check for whether should resolve. E.g. items falling&spawning, or doing the graphics for a valid swap.
         };
         BoardState getBoardState();
+        //Return value is whether item was deleted. So if it returns true, item has been deleted. Otherwise, it still exists at coord.
+        bool breakBreakableItemInGrid(game_logic::items::Item* item, game_logic::items::Item::Colour cause, game_logic::items::Coord const coord);
+        //Return value is whether item was deleted. So if it returns true, item has been deleted. Otherwise, it still exists (so is the responsibility of the owner still).
+        bool breakBreakableItemNotInGrid(game_logic::items::Item* item, game_logic::items::Item::Colour cause);
+        //No return value - you have always lost ownership of the item - either destroyed, or taken over by the destroying Effect.
+        void detonatePrimedItemInGrid(game_logic::items::Item* item, game_logic::items::Coord const coord);
     }
 }

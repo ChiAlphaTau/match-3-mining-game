@@ -14,6 +14,7 @@ using game_logic::game::grid;
 using game_logic::items::Coord;
 using game_logic::items::Direction;
 typedef game_logic::items::Item::Colour Colour;
+using game_logic::items::ItemState;
 using util::constants::CELL_COUNT_HORIZONTAL;
 using util::constants::CELL_COUNT_VERTICAL;
 
@@ -148,18 +149,13 @@ namespace game_logic::game::board_update{
         return foundAny;
         
     }
-    void detonateItemThatWishesToDetonate(Coord const coord, Item* item){
-        game_logic::effects::Effect* deathEffect=item->detonateSelf(coord);
-        if(deathEffect!=nullptr)    pushEffect(deathEffect);
-        grid->destroy(coord);//If the deathEffect claimed the item, then nothing happens. Otherwise destroys the item - the deathEffect no longer needs the item.
-    }
     bool tryToDetonate(){
         bool anyDetonations{false};
         for(Coord coord{0,0}; coord.x<CELL_COUNT_HORIZONTAL; ++coord.x){
             for(coord.y=0; coord.y<CELL_COUNT_VERTICAL; ++coord.y){
                 Item* item = grid->peek(coord);
-                if(item!=nullptr && item->readyToDetonate()){
-                    detonateItemThatWishesToDetonate(coord,item);
+                if(item!=nullptr && item->state()==ItemState::WISHES_TO_DETONATE){
+                    game_logic::game::detonatePrimedItemInGrid(item,coord);
                     anyDetonations=true;
                 }
             }
@@ -173,8 +169,7 @@ namespace game_logic::game::board_update{
                 if(shouldGo[coord.x][coord.y]){
                     Item* item = grid->peek(coord);
                     if(item != nullptr){//Everything involved in a match is breakable as matchable, so no need to check.
-                        if(item->breakSelf(item->colour)){//If the item wishes to be destroyed, then do so.
-                            grid->destroy(coord);
+                        if(game_logic::game::breakBreakableItemInGrid(item,item->colour,coord)){//If the item wishes to be destroyed, then do so.
                             shouldGo[coord.x][coord.y]=false;//And mark it as not to be detonated (if it didn't want to be destroyed, then it wants to be detonated).
                         }
                     }
@@ -185,7 +180,7 @@ namespace game_logic::game::board_update{
             for(coord.y=0; coord.y<CELL_COUNT_VERTICAL; ++coord.y){
                 if(shouldGo[coord.x][coord.y]){
                     Item* item = grid->peek(coord);//Not null as was broken in previous loop.
-                    detonateItemThatWishesToDetonate(coord,item);
+                    game_logic::game::detonatePrimedItemInGrid(item,coord);
                 }
             }
         }
@@ -278,11 +273,32 @@ namespace game_logic::game::board_update{
             location += direction;
             Item const* item=grid->peek(location);
             if(item!=NULL){
-                if(item->isMatchable()&&item->colour == colour){
+                if((item->state()==ItemState::CAN_BE_MATCHED_IN_GRID)&&item->colour == colour){
                     return true;
                 }
             }
         }
         return false;
+    }
+}
+namespace game_logic::game{
+    bool breakBreakableItemInGrid(game_logic::items::Item* item, game_logic::items::Item::Colour cause, game_logic::items::Coord const coord){
+        if(item->breakSelf(cause)){//If the item wishes to be destroyed, then do so.
+            grid->destroy(coord);
+            return true;
+        }
+        return false;
+    }
+    bool breakBreakableItemNotInGrid(game_logic::items::Item* item, game_logic::items::Item::Colour cause){
+        if(item->breakSelf(cause)){//If the item wishes to be destroyed, then do so.
+            delete item;
+            return true;
+        }
+        return false;
+    }
+    void detonatePrimedItemInGrid(game_logic::items::Item* item, game_logic::items::Coord const coord){
+        game_logic::effects::Effect* deathEffect=item->detonateSelf(coord);
+        if(deathEffect!=nullptr)    pushEffect(deathEffect);
+        grid->destroy(coord);//If the deathEffect claimed the item, then nothing happens. Otherwise destroys the item - the deathEffect no longer needs the item.
     }
 }
