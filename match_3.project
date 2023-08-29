@@ -4,11 +4,15 @@
   <Description/>
   <Dependencies/>
   <VirtualDirectory Name="src">
+    <File Name="item_rainbow.cpp"/>
+    <File Name="item_star.cpp"/>
+    <File Name="item_bomb.cpp"/>
+    <File Name="item_specials.h"/>
+    <File Name="item_render.cpp"/>
     <File Name="falling.cpp"/>
     <File Name="falling.h"/>
     <File Name="board_logic.cpp"/>
     <File Name="board_logic.h"/>
-    <File Name="item_vanilla.cpp"/>
     <File Name="item_vanilla.h"/>
     <File Name="swap.cpp"/>
     <File Name="swap.h"/>

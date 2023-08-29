@@ -5,9 +5,10 @@
 #include "constants.h"
 #include "falling.h"
 #include "item_vanilla.h"
+#include "item_specials.h"
 
 #include <vector>
-#include <iostream>//TODO:remove this once actually spawn the special items.
+#include <iostream>//TODO:remove this and get rid of item matching console messages.
 
 using game_logic::game::grid;
 using game_logic::items::Coord;
@@ -42,7 +43,8 @@ namespace game_logic::game::board_update{
             //The two intersect.
             hori.takeAt(vert.start.x-hori.start.x);
             vert.takeAt(hori.start.y-vert.start.y);
-            //TODO:Spawn a star at Coord{vert.start.x,hori.start.y} of colour vert.colour (which equals hori.colour).
+            //Spawn a star at Coord{vert.start.x,hori.start.y} of colour vert.colour (which equals hori.colour).
+            grid->give(Coord{vert.start.x,hori.start.y},new game_logic::items::Star(vert.colour));
             std::cout << "Spawn a '"<<vert.colour<<"' star at ("<<vert.start.x<<","<<hori.start.y<<").\n";
         }
     }
@@ -77,7 +79,8 @@ namespace game_logic::game::board_update{
             Direction direction=run.direction();
             for(int i=0;i<index;++i)    spawnPoint+=direction;
 
-            //TODO:spawn rainbow at spawnPoint.
+            //Spawn rainbow at spawnPoint.
+            grid->give(spawnPoint,new game_logic::items::Rainbow());
             std::cout << "Spawn a rainbow at ("<<spawnPoint.x<<","<<spawnPoint.y<<").\n";
             run.takeAt(index);
         }
@@ -89,7 +92,8 @@ namespace game_logic::game::board_update{
                     Coord spawnPoint{run.start};
                     Direction direction=run.direction();
                     for(int step=0;step<index;++step)   spawnPoint+=direction;
-                    //TODO:spawn bomb at spawnPoint of colour run.colour.
+                    //Spawn bomb at spawnPoint of colour run.colour.
+                    grid->give(spawnPoint,new game_logic::items::Bomb(run.colour));
                     std::cout << "Spawn a '"<<run.colour<<"' bomb at ("<<spawnPoint.x<<","<<spawnPoint.y<<").\n";
                     run.takeAt(index);
                     break;
@@ -144,11 +148,44 @@ namespace game_logic::game::board_update{
         return foundAny;
         
     }
+    void detonateItemThatWishesToDetonate(Coord const coord, Item* item){
+        game_logic::effects::Effect* deathEffect=item->detonateSelf(coord);
+        if(deathEffect!=nullptr)    pushEffect(deathEffect);
+        grid->destroy(coord);//If the deathEffect claimed the item, then nothing happens. Otherwise destroys the item - the deathEffect no longer needs the item.
+    }
+    bool tryToDetonate(){
+        bool anyDetonations{false};
+        for(Coord coord{0,0}; coord.x<CELL_COUNT_HORIZONTAL; ++coord.x){
+            for(coord.y=0; coord.y<CELL_COUNT_VERTICAL; ++coord.y){
+                Item* item = grid->peek(coord);
+                if(item!=nullptr && item->readyToDetonate()){
+                    detonateItemThatWishesToDetonate(coord,item);
+                    anyDetonations=true;
+                }
+            }
+        }
+        return anyDetonations;
+    }
+    //Afterwards, shouldGo marks which were detonated.
     void removeMatches( bool (&shouldGo)[CELL_COUNT_HORIZONTAL][CELL_COUNT_VERTICAL]){
         for(Coord coord{0,0}; coord.x<CELL_COUNT_HORIZONTAL; ++coord.x){
             for(coord.y=0; coord.y<CELL_COUNT_VERTICAL; ++coord.y){
                 if(shouldGo[coord.x][coord.y]){
-                    grid->destroy(coord);
+                    Item* item = grid->peek(coord);
+                    if(item != nullptr){//Everything involved in a match is breakable as matchable, so no need to check.
+                        if(item->breakSelf(item->colour)){//If the item wishes to be destroyed, then do so.
+                            grid->destroy(coord);
+                            shouldGo[coord.x][coord.y]=false;//And mark it as not to be detonated (if it didn't want to be destroyed, then it wants to be detonated).
+                        }
+                    }
+                }
+            }
+        }
+        for(Coord coord{0,0}; coord.x<CELL_COUNT_HORIZONTAL; ++coord.x){
+            for(coord.y=0; coord.y<CELL_COUNT_VERTICAL; ++coord.y){
+                if(shouldGo[coord.x][coord.y]){
+                    Item* item = grid->peek(coord);//Not null as was broken in previous loop.
+                    detonateItemThatWishesToDetonate(coord,item);
                 }
             }
         }
@@ -169,7 +206,7 @@ namespace game_logic::game::board_update{
         //Then until run out of cells to check.
         while(true){
             //Record destination of bottom falling item.
-            int const bottom{head.y};
+            int const destinationY{head.y+fall};
             //Work out how many consecutive gaps there are, returning total fall if run out of cells to check (i.e. if top cell is empty).
             do{
                 ++fall;
@@ -183,7 +220,7 @@ namespace game_logic::game::board_update{
                 else                    {hitTopWhichIsNotNull=true; break;}
             } while(grid->peek(head)!=NULL);
             //Then create a fall out of those gathered items.
-            pushEffect(new game_logic::effects::Fall(game_logic::items::Coord(x,bottom),fall,claimed));
+            pushEffect(new game_logic::effects::Fall(game_logic::items::Coord(x,destinationY),fall,claimed));
             claimed.clear();
             if(hitTopWhichIsNotNull)    return fall;//If you aborted the previous loop due to running out of cells to check (i.e. top cell is occupied), then return fall.
         }
@@ -207,11 +244,14 @@ namespace game_logic::game::board_update{
 
         std::vector<Consecutive> horis{};
         std::vector<Consecutive> verts{};
-
-        bool foundAny=  tryToFindMatchesInDirection(true,shouldGo,verts);
-        foundAny|=      tryToFindMatchesInDirection(false,shouldGo,horis);
         
-        if(foundAny){
+        bool foundDetonations = tryToDetonate();
+
+        bool foundMatches{false};
+        foundMatches|=  tryToFindMatchesInDirection(true,shouldGo,verts);
+        foundMatches|=  tryToFindMatchesInDirection(false,shouldGo,horis);
+
+        if(foundMatches){
             removeMatches(shouldGo);
             generateStars(horis,verts);
             for(auto run:verts) generateRainbows(run);
@@ -220,7 +260,7 @@ namespace game_logic::game::board_update{
             for(auto run:horis) generateBombs(run);
         }
 
-        return foundAny;
+        return foundMatches || foundDetonations;
     }
     bool tryToMakeFallsHappen(){
         bool anyFalls{false};
@@ -238,7 +278,7 @@ namespace game_logic::game::board_update{
             location += direction;
             Item const* item=grid->peek(location);
             if(item!=NULL){
-                if(item->colour == colour){
+                if(item->isMatchable()&&item->colour == colour){
                     return true;
                 }
             }
