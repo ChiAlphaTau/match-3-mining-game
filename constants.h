@@ -29,6 +29,8 @@ namespace util{
             SDL_Rect{6*GEM_TEXTURE_LENGTH,0,223,222};
         const SDL_Rect STAR_LASER_TEXTURE_REGION=
             SDL_Rect{6*GEM_TEXTURE_LENGTH+223,0,59,249};
+        const float STAR_LASER_ASPECT_RATIO=
+            static_cast<float>(STAR_LASER_TEXTURE_REGION.h)/static_cast<float>(STAR_LASER_TEXTURE_REGION.w);
         const SDL_Rect RAINBOW_TEXTURE_REGION=
             SDL_Rect{0,GEM_TEXTURE_LENGTH,GEM_TEXTURE_LENGTH,GEM_TEXTURE_LENGTH};
     }
