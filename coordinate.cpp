@@ -17,10 +17,10 @@ namespace game_logic::items{
         if(y<0)y=0;
         else if(y>=CELL_COUNT_VERTICAL)y=CELL_COUNT_VERTICAL-1;
     }
-    bool Coord::operator==(Coord const& other){
+    bool Coord::operator==(Coord const& other) const{
         return x==other.x && y==other.y;
     }
-    bool Coord::isAdjacentTo(Coord const& other){
+    bool Coord::isAdjacentTo(Coord const& other) const{
         return
             (x-other.x)*(x-other.x) +
             (y-other.y)*(y-other.y)
@@ -40,7 +40,7 @@ namespace game_logic::items{
         *this = (*this)+direction;
         return *this;
     }
-    bool Coord::operator <(const Direction direction){
+    bool Coord::operator <(const Direction direction)const{
         switch(direction){
             case Direction::LEFT:           return x>0;
             case Direction::RIGHT:          return x<CELL_COUNT_HORIZONTAL-1;
@@ -50,7 +50,7 @@ namespace game_logic::items{
             case Direction::NONE:default:   return true;
         }
     }
-    Direction Coord::operator -(Coord const& other){
+    Direction Coord::operator -(Coord const& other) const{
         switch(x-other.x){
             case -1:
                 if((y-other.y)==0)  return Direction::LEFT;

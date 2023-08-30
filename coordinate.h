@@ -25,13 +25,13 @@ namespace game_logic::items{
         int y{0};
         Coord(int x_val,int y_val);
         void renormalise();//Call after manually changing x&y.
-        bool operator==(Coord const& other);
-        bool isAdjacentTo(Coord const& other);
+        bool operator==(Coord const& other) const;
+        bool isAdjacentTo(Coord const& other) const;
         Coord operator +(const Direction direction) const;
         Coord& operator +=(const Direction direction);
-        bool operator <(const Direction direction);//Returns whether can move in that directionw without falling off the grid.
+        bool operator <(const Direction direction) const;//Returns whether can move in that directionw without falling off the grid.
         //Returns direction to go 1 unit in to get from other to this, or NONE if no such direction exists.
         //E.g., this returns LEFT iff this is exactly one cell to the left of other (and no cells vertically).
-        Direction operator -(Coord const& other);
+        Direction operator -(Coord const& other) const;
     };
 }
