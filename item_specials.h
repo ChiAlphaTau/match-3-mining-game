@@ -42,7 +42,7 @@ namespace game_logic::items{
         Rainbow(): Item(Item::RED){}
         void draw(int dt, game_logic::items::Coord const& coord, float xOffset=0, float yOffset=0)override;
         ItemState state() const override{
-            if(stillSealed)     return ItemState::CANNOT_BE_MATCHED_BUT_BREAKABLE;
+            if(stillSealed)     return ItemState::CAN_BE_ACTIVATED_IN_GRID;
             else if(!detonated) return ItemState::WISHES_TO_DETONATE;
             else                return ItemState::DETONATED;
         }

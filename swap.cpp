@@ -42,11 +42,20 @@ namespace game_logic::effects{
     }
     template<> Effect::ExpiryState Swap<true>::update (int dt) {
         progress+=dt;
-        if(progress>SWAP_TIME){//If done swapping, put the items in their new place.
-            for(int i=0;i<2;++i){
+        if(progress>SWAP_TIME){//If done swapping.
+            game_logic::items::Item::Colour colour[2];
+            bool activateable[2];
+            for(int i=0;i<2;++i){//Then put the items in their new place.
+                colour[i]=items[i]->colour;
+                activateable[i]=items[i]->state()==game_logic::items::ItemState::CAN_BE_ACTIVATED_IN_GRID;
                 game_logic::game::grid -> give(startingCoords[1-i],items[i]);
-                items[i]=NULL;
             }
+            for(int i=0;i<2;++i){//Activating any activateable items.
+                if(activateable[i]){
+                    game_logic::game::breakBreakableItemInGrid(items[i],colour[1-i],startingCoords[1-i]);
+                }
+            }
+            for(int i=0;i<2;++i)    items[i]=nullptr;//Then forgetting about the items.
             return Effect::DONE;
         }
         else{

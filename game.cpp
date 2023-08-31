@@ -32,6 +32,7 @@ namespace game_logic::game{
     void makeSwap(Coord const origin, game_logic::items::Direction const direction);
     bool isSwapLegalInSingleDirection(Coord const origin, game_logic::items::Direction direction);
     bool isSwapLegal(Coord const origin, game_logic::items::Direction const direction);
+    bool isSwapAnActivation(Coord const origin, game_logic::items::Direction const direction);
 
     bool setup(){
         grid=new Grid();
@@ -289,7 +290,21 @@ namespace game_logic::game{
     }
     bool isSwapLegal(Coord const origin, game_logic::items::Direction const direction){
         return
+            isSwapAnActivation(origin, direction) ||
             isSwapLegalInSingleDirection(origin,direction) ||
             isSwapLegalInSingleDirection(origin+direction,-direction);
+    }
+    bool isSwapAnActivation(Coord const origin, game_logic::items::Direction const direction){
+        Item* item{grid->peek(origin)};
+        if(item!=nullptr && item->state()==game_logic::items::ItemState::CAN_BE_ACTIVATED_IN_GRID){
+            return true;
+        }
+        else{
+            item=grid->peek(origin+direction);
+            if(item!=nullptr && item->state()==game_logic::items::ItemState::CAN_BE_ACTIVATED_IN_GRID){
+                return true;
+            }
+        }
+        return false;
     }
 }

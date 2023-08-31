@@ -7,7 +7,8 @@ namespace game_logic::items{
     public:
         enum Val{
             CAN_BE_MATCHED_IN_GRID,
-            CANNOT_BE_MATCHED_BUT_BREAKABLE,
+            CAN_BE_ACTIVATED_IN_GRID,
+            CANNOT_BE_MATCHED_OR_ACTIVATED_BUT_BREAKABLE,
             WISHES_TO_DETONATE,
             DETONATED
         };
@@ -18,12 +19,7 @@ namespace game_logic::items{
         //Allow auto-casting to Val for comparison/switch, but disallow (auto-cast to in) if(itemState) statements.
         operator Val()const{return internal;}   explicit operator bool() const=delete;
         bool isBreakable()const{
-            switch(internal){
-                case CAN_BE_MATCHED_IN_GRID:case CANNOT_BE_MATCHED_BUT_BREAKABLE:
-                    return true;
-                default:
-                    return false;
-            }
+            return internal<=CANNOT_BE_MATCHED_OR_ACTIVATED_BUT_BREAKABLE;
         }
     };
 }
