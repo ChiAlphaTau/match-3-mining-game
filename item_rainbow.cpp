@@ -2,15 +2,11 @@
 
 #include "effect.h"
 #include "game.h"
-#include "window_admin.h"
-#include "asset_store.h"
 #include "constants.h"
+#include "render.h"
 
 #include <vector>
 
-using util::constants::CELL_LENGTH;
-using util::constants::RAINBOW_HALO_TEXTURE_REGION;
-using util::constants::RAINBOW_TEXTURE_REGION;
 using game_logic::items::Direction;
 
 namespace game_logic::effects{
@@ -58,31 +54,6 @@ namespace game_logic::effects{
         void draw(int dt) override;
         //Note to self: there is no need to clear breakSites in the destructor, as breakSites is "destructor-ed" when the owning object is. Would only have to deal with the vector if it contained pointers, as would have to delete those.
     };
-    namespace render{
-        void renderRainbowHalo(game_logic::items::Coord const& coord, float const radius, double const angle, Uint8 const r, Uint8 const g, Uint8 const b){
-            float const centreX{coord.x+0.5f};
-            float const centreY{coord.y+0.5f};
-            const SDL_Rect dstRect{
-                static_cast<int>((centreX-radius)*CELL_LENGTH),//I believe cast is a round towards 0.
-                static_cast<int>((centreY-radius)*CELL_LENGTH),
-                static_cast<int>(2*radius*CELL_LENGTH),
-                static_cast<int>(2*radius*CELL_LENGTH)};
-            const SDL_Rect* srcRect//That is (variable pointer) to (const SDL_Rect).
-                 = &RAINBOW_HALO_TEXTURE_REGION;
-            SDL_SetTextureColorMod(assets::store::tiles,r,g,b);
-            SDL_RenderCopyEx(program::renderer,assets::store::tiles,srcRect,&dstRect,angle,nullptr,SDL_FLIP_NONE);
-            SDL_SetTextureColorMod(assets::store::tiles,SDL_ALPHA_OPAQUE,SDL_ALPHA_OPAQUE,SDL_ALPHA_OPAQUE);
-        }
-        void renderRainbowHalo(game_logic::items::Coord const& coord, float const radius, double const angle, Uint8 const r, Uint8 const g, Uint8 const b, float opacity){
-            int alpha=SDL_ALPHA_OPAQUE*opacity;
-            if(alpha>SDL_ALPHA_OPAQUE)  alpha=SDL_ALPHA_OPAQUE;
-            else if(alpha<0)            alpha=0;
-
-            SDL_SetTextureAlphaMod(assets::store::tiles,alpha);
-            renderRainbowHalo(coord,radius,angle,r,g,b);
-            SDL_SetTextureAlphaMod(assets::store::tiles,SDL_ALPHA_OPAQUE);
-        }
-    }
 }
 namespace game_logic::items{
     bool Rainbow::breakSelf(Colour const cause){

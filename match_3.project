@@ -4,6 +4,8 @@
   <Description/>
   <Dependencies/>
   <VirtualDirectory Name="src">
+    <File Name="render.cpp"/>
+    <File Name="render.h"/>
     <File Name="item_state.h"/>
     <File Name="item_rainbow.cpp"/>
     <File Name="item_star.cpp"/>

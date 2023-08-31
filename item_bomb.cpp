@@ -2,14 +2,11 @@
 
 #include "effect.h"
 #include "game.h"
-#include "window_admin.h"
-#include "asset_store.h"
 #include "constants.h"
+#include "render.h"
 
 #include <cmath>
 
-using util::constants::CELL_LENGTH;
-using util::constants::BOMB_HALO_TEXTURE_REGION;
 using game_logic::items::Direction;
 
 namespace game_logic::effects{
@@ -40,29 +37,6 @@ namespace game_logic::effects{
         void draw(int dt) override;
         //No pointers to kill, so no need to override destructor.
     };
-    namespace render{
-        void renderBombHalo(game_logic::items::Coord const& coord, float radius){
-            float centreX=coord.x+0.5f;
-            float centreY=coord.y+0.5f;
-            const SDL_Rect dstRect{
-                static_cast<int>((centreX-radius)*CELL_LENGTH),//I believe cast is a round towards 0.
-                static_cast<int>((centreY-radius)*CELL_LENGTH),
-                static_cast<int>(2*radius*CELL_LENGTH),
-                static_cast<int>(2*radius*CELL_LENGTH)};
-            const SDL_Rect* srcRect//That is (variable pointer) to (const SDL_Rect).
-                 = &BOMB_HALO_TEXTURE_REGION;
-            SDL_RenderCopy(program::renderer,assets::store::tiles,srcRect,&dstRect);
-        }
-        void renderBombHalo(game_logic::items::Coord const& coord, float radius, float opacity){
-            int alpha=SDL_ALPHA_OPAQUE*opacity;
-            if(alpha>SDL_ALPHA_OPAQUE)  alpha=SDL_ALPHA_OPAQUE;
-            else if(alpha<0)            alpha=0;
-
-            SDL_SetTextureAlphaMod(assets::store::tiles,alpha);
-            renderBombHalo(coord,radius);
-            SDL_SetTextureAlphaMod(assets::store::tiles,SDL_ALPHA_OPAQUE);
-        }
-    }
 }
 namespace game_logic::items{
     bool Bomb::breakSelf(Colour const cause){
