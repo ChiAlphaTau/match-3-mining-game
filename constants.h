@@ -35,11 +35,5 @@ namespace util{
             SDL_Rect{768,0,228,228};
         const SDL_Rect RAINBOW_TEXTURE_REGION=
             SDL_Rect{0,GEM_TEXTURE_LENGTH,GEM_TEXTURE_LENGTH,GEM_TEXTURE_LENGTH};
-
-        namespace colours_rgb{//Found by sampling the colour block that includes the pixel at (100,70) in {Spritesheet/spritesheet_tilesColour.png} from Puzzle Pack II (see {rundir/images/credit.txt}).
-            const Uint8 R[6]{0xc8,0x1e,0xff,0x80,0xe8,0xff};//TODO:Dedicated RGB class.
-            const Uint8 G[6]{0x3e,0xa7,0xcc,0xbe,0x6a,0x99};
-            const Uint8 B[6]{0x3e,0xe1,0x00,0x1f,0x17,0xcc};
-        }
     }
 }

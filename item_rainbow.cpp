@@ -94,29 +94,26 @@ namespace game_logic::effects{
         return ExpiryState::DONE;
     }
     void HandleRainbowSingleTarget::draw(int dt) {
-        Uint8 const r=util::constants::colours_rgb::R[targetColour];
-        Uint8 const g=util::constants::colours_rgb::G[targetColour];
-        Uint8 const b=util::constants::colours_rgb::B[targetColour];
         double const angle=angleAtEndOfPreviousPhase+angularDisplacement(phase,t);
 
         switch(phase){
             case 0://Simply draw the halo at original radius at source.
-                render::renderRainbowHalo(source, RADIUS_INITIAL, angle, r, g, b);
+                render::renderRainbowHalo(source, RADIUS_INITIAL, angle, targetColour);
                 break;
             case 1://Draw the halo at source, but imploding.
-                render::renderRainbowHalo(source, RADIUS_INITIAL+t*RADIAL_VELOCITY_IMPLODE, angle, r, g, b);
+                render::renderRainbowHalo(source, RADIUS_INITIAL+t*RADIAL_VELOCITY_IMPLODE, angle, targetColour);
                 break;
             case 2://Draw the halos at the break sites, exploding.
                 {//The {} is to wrap radius in a scope, otherwise it would be visible in the {case 3:default:} branch but not be initialised (see {https://stackoverflow.com/a/5685578}).
                     float const radius{RADIUS_DISAPPEAR+t*RADIAL_VELOCITY_EXPLODE};
                     for(Coord coord:breakSites){
-                        render::renderRainbowHalo(coord, radius, angle, r, g, b);
+                        render::renderRainbowHalo(coord, radius, angle, targetColour);
                     }
                 }
                 break;
             case 3:default://Draw the halos at the break sites, fading.
                 for(Coord coord:breakSites){
-                    render::renderRainbowHalo(coord, RADIUS_FADING, angle, r, g, b, 1.f-(t/static_cast<float>(TOTAL_TIME_FADE)));
+                    render::renderRainbowHalo(coord, RADIUS_FADING, angle, targetColour, 1.f-(t/static_cast<float>(TOTAL_TIME_FADE)));
                 }
                 break;
         }

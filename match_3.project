@@ -4,6 +4,7 @@
   <Description/>
   <Dependencies/>
   <VirtualDirectory Name="src">
+    <File Name="rgb_union.h"/>
     <File Name="render.cpp"/>
     <File Name="render.h"/>
     <File Name="item_state.h"/>

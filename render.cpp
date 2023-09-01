@@ -7,6 +7,23 @@
 using namespace util::constants;
 
 namespace render{
+    void tintTilesBy(types::RGB const rgb){
+        SDL_SetTextureColorMod(assets::store::tiles,rgb.r,rgb.g,rgb.b);
+    }
+    void stopTintingTiles(){
+        SDL_SetTextureColorMod(assets::store::tiles,SDL_ALPHA_OPAQUE,SDL_ALPHA_OPAQUE,SDL_ALPHA_OPAQUE);
+    }
+    void alphaTilesBy(float const opacity){
+        int alpha=SDL_ALPHA_OPAQUE*opacity;
+        if(alpha>SDL_ALPHA_OPAQUE)  alpha=SDL_ALPHA_OPAQUE;
+        else if(alpha<0)            alpha=0;
+
+        SDL_SetTextureAlphaMod(assets::store::tiles,alpha);
+    }
+    void stopAlphaingTiles(){
+        SDL_SetTextureAlphaMod(assets::store::tiles,SDL_ALPHA_OPAQUE);
+    }
+
     void renderUnitLengthSprite(game_logic::items::Coord const& coord, float const xOffset, float const yOffset, SDL_Rect const* const srcRect){
         const SDL_Rect dstRect{
             static_cast<int>((coord.x+xOffset)*CELL_LENGTH),//I believe cast is a round towards 0.
@@ -26,13 +43,9 @@ namespace render{
         SDL_RenderCopy(program::renderer,assets::store::tiles,srcRect,&dstRect);
     }
     void renderGridAlignedSprite(game_logic::items::Coord const& coord, float radius, SDL_Rect const* const srcRect, float opacity){
-        int alpha=SDL_ALPHA_OPAQUE*opacity;
-        if(alpha>SDL_ALPHA_OPAQUE)  alpha=SDL_ALPHA_OPAQUE;
-        else if(alpha<0)            alpha=0;
-
-        SDL_SetTextureAlphaMod(assets::store::tiles,alpha);
+        alphaTilesBy(opacity);
         renderGridAlignedSprite(coord,radius,srcRect);
-        SDL_SetTextureAlphaMod(assets::store::tiles,SDL_ALPHA_OPAQUE);
+        stopAlphaingTiles();
     }
     void renderGridAlignedSpriteRotated(game_logic::items::Coord const& coord, float radius, SDL_Rect const* const srcRect, double angle){
         float const centreX{coord.x+0.5f};
@@ -45,13 +58,9 @@ namespace render{
         SDL_RenderCopyEx(program::renderer,assets::store::tiles,srcRect,&dstRect,angle,nullptr,SDL_FLIP_NONE);
     }
     void renderGridAlignedSpriteRotated(game_logic::items::Coord const& coord, float radius, SDL_Rect const* const srcRect, double angle, float opacity){
-        int alpha=SDL_ALPHA_OPAQUE*opacity;
-        if(alpha>SDL_ALPHA_OPAQUE)  alpha=SDL_ALPHA_OPAQUE;
-        else if(alpha<0)            alpha=0;
-
-        SDL_SetTextureAlphaMod(assets::store::tiles,alpha);
+        alphaTilesBy(opacity);
         renderGridAlignedSpriteRotated(coord,radius,srcRect,angle);
-        SDL_SetTextureAlphaMod(assets::store::tiles,SDL_ALPHA_OPAQUE);
+        stopAlphaingTiles();
     }
 
     void renderColouredItem(game_logic::items::Item::Colour colour, game_logic::items::Coord const& coord, float xOffset, float yOffset){
@@ -93,19 +102,28 @@ namespace render{
         SDL_RenderCopyEx(program::renderer,assets::store::tiles,srcRect,&dstRect,angle,&rotationCentre,SDL_FLIP_NONE);
     }
 
-    void renderRainbowHaloUnitLength(game_logic::items::Coord const& coord, float xOffset, float yOffset, Uint8 const r, Uint8 const g, Uint8 const b){
-        SDL_SetTextureColorMod(assets::store::tiles,r,g,b);
+    void renderRainbowHaloUnitLength(game_logic::items::Coord const& coord, float xOffset, float yOffset, types::RGB const colour){
+        tintTilesBy(colour);
         renderUnitLengthSprite(coord,xOffset,yOffset,&RAINBOW_HALO_TEXTURE_REGION);
-        SDL_SetTextureColorMod(assets::store::tiles,SDL_ALPHA_OPAQUE,SDL_ALPHA_OPAQUE,SDL_ALPHA_OPAQUE);
+        stopTintingTiles();
     }
-    void renderRainbowHalo(game_logic::items::Coord const& coord, float const radius, double const angle, Uint8 const r, Uint8 const g, Uint8 const b){
-        SDL_SetTextureColorMod(assets::store::tiles,r,g,b);
+    void renderRainbowHalo(game_logic::items::Coord const& coord, float const radius, double const angle, types::RGB const colour){
+        tintTilesBy(colour);
         renderGridAlignedSpriteRotated(coord,radius,&RAINBOW_HALO_TEXTURE_REGION,angle);
-        SDL_SetTextureColorMod(assets::store::tiles,SDL_ALPHA_OPAQUE,SDL_ALPHA_OPAQUE,SDL_ALPHA_OPAQUE);
+        stopTintingTiles();
     }
-    void renderRainbowHalo(game_logic::items::Coord const& coord, float const radius, double const angle, Uint8 const r, Uint8 const g, Uint8 const b, float opacity){
-        SDL_SetTextureColorMod(assets::store::tiles,r,g,b);
+    void renderRainbowHalo(game_logic::items::Coord const& coord, float const radius, double const angle, types::RGB const colour, float opacity){
+        tintTilesBy(colour);
         renderGridAlignedSpriteRotated(coord,radius,&RAINBOW_HALO_TEXTURE_REGION,angle,opacity);
-        SDL_SetTextureColorMod(assets::store::tiles,SDL_ALPHA_OPAQUE,SDL_ALPHA_OPAQUE,SDL_ALPHA_OPAQUE);
+        stopTintingTiles();
+    }
+    void renderRainbowHaloUnitLength(game_logic::items::Coord const& coord, float xOffset, float yOffset, game_logic::items::Item::Colour const colour){
+        renderRainbowHaloUnitLength(coord, xOffset, yOffset, assets::store::colours::COLOURS_RGB[colour]);
+    }
+    void renderRainbowHalo(game_logic::items::Coord const& coord, float const radius, double const angle, game_logic::items::Item::Colour const colour){
+        renderRainbowHalo(coord,radius,angle,assets::store::colours::COLOURS_RGB[colour]);
+    }
+    void renderRainbowHalo(game_logic::items::Coord const& coord, float const radius, double const angle, game_logic::items::Item::Colour const colour, float opacity){
+        renderRainbowHalo(coord,radius,angle,assets::store::colours::COLOURS_RGB[colour],opacity);
     }
 }

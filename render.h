@@ -1,11 +1,17 @@
 #pragma once
 
+#include "rgb_union.h"
 #include "coordinate.h"
 #include "item.h"
 
 #include <SDL2/SDL.h>
 
 namespace render{
+    void tintTilesBy(types::RGB const rgb);
+    void stopTintingTiles();
+    void alphaTilesBy(float const opacity);
+    void stopAlphaingTiles();
+
     void renderUnitLengthSprite(game_logic::items::Coord const& coord, float const xOffset, float const yOffset, SDL_Rect const* const srcRect);
     void renderGridAlignedSprite(game_logic::items::Coord const& coord, float radius, SDL_Rect const* const srcRect);
     void renderGridAlignedSprite(game_logic::items::Coord const& coord, float radius, SDL_Rect const* const srcRect, float opacity);
@@ -24,7 +30,10 @@ namespace render{
     void renderStarHalo(game_logic::items::Coord const& coord, float radius, float opacity);
     void renderStarLaser(float centreX, float centreY, float radius, double angle);
 
-    void renderRainbowHaloUnitLength(game_logic::items::Coord const& coord, float xOffset, float yOffset, Uint8 const r, Uint8 const g, Uint8 const b);
-    void renderRainbowHalo(game_logic::items::Coord const& coord, float const radius, double const angle, Uint8 const r, Uint8 const g, Uint8 const b);
-    void renderRainbowHalo(game_logic::items::Coord const& coord, float const radius, double const angle, Uint8 const r, Uint8 const g, Uint8 const b, float opacity);
+    void renderRainbowHaloUnitLength(game_logic::items::Coord const& coord, float xOffset, float yOffset, types::RGB const colour);
+    void renderRainbowHalo(game_logic::items::Coord const& coord, float const radius, double const angle, types::RGB const colour);
+    void renderRainbowHalo(game_logic::items::Coord const& coord, float const radius, double const angle, types::RGB const colour, float opacity);
+    void renderRainbowHaloUnitLength(game_logic::items::Coord const& coord, float xOffset, float yOffset, game_logic::items::Item::Colour const colour);
+    void renderRainbowHalo(game_logic::items::Coord const& coord, float const radius, double const angle, game_logic::items::Item::Colour const colour);
+    void renderRainbowHalo(game_logic::items::Coord const& coord, float const radius, double const angle, game_logic::items::Item::Colour const colour, float opacity);
 }
