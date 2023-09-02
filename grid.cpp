@@ -5,7 +5,7 @@ namespace game_logic{
         if(val<util::constants::NUMBER_OF_COLOURS){
             return static_cast<items::Item::Colour>(val);
         }
-        return items::Item::RED;//Maybe throw error instead?
+        return items::Item::RAINBOW;//Maybe throw error instead?
     }
     Grid::Grid(){
         for(int i=0; i<util::constants::CELL_COUNT_HORIZONTAL; ++i){
