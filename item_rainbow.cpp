@@ -2,8 +2,9 @@
 
 #include "effect.h"
 #include "game.h"
-#include "constants.h"
 #include "render.h"
+
+#include "constants_grid.h"
 
 #include <vector>
 #include <iterator>
@@ -146,8 +147,8 @@ namespace game_logic::effects{
     HandleRainbowTargetSingle::HandleRainbowTargetSingle(game_logic::items::Coord const& rainbowLocation, game_logic::items::Item::Colour const targetColour_val):HandleRainbow(rainbowLocation), targetColour(targetColour_val){}
     void HandleRainbowTargetSingle::goThroughBreakingItemsInGrid(){
         //Go through the grid, breaking and recording the coordinates of any (non-null) items that are breakable and the target colour.
-        for(Coord coord{0,0}; coord.x<util::constants::CELL_COUNT_HORIZONTAL; ++coord.x){
-            for(coord.y=0; coord.y<util::constants::CELL_COUNT_VERTICAL; ++coord.y){
+        for(Coord coord{0,0}; coord.x<game_logic::constants::CELL_COUNT_HORIZONTAL; ++coord.x){
+            for(coord.y=0; coord.y<game_logic::constants::CELL_COUNT_VERTICAL; ++coord.y){
                 Item* const item{game_logic::game::grid->peek(coord)};
                 if(item!=nullptr && item->colour==targetColour && item->state().isBreakable()){
                     breakSites.push_back(coord);
@@ -173,8 +174,8 @@ namespace game_logic::effects{
     HandleRainbowTargetAllColours::HandleRainbowTargetAllColours(game_logic::items::Coord const& rainbowLocation):HandleRainbow(rainbowLocation){}
     void HandleRainbowTargetAllColours::goThroughBreakingItemsInGrid(){
         //Go through the grid, breaking and recording the coordinates and colour of any (non-null) items that are breakable and not rainbow coloured.
-        for(Coord coord{0,0}; coord.x<util::constants::CELL_COUNT_HORIZONTAL; ++coord.x){
-            for(coord.y=0; coord.y<util::constants::CELL_COUNT_VERTICAL; ++coord.y){
+        for(Coord coord{0,0}; coord.x<game_logic::constants::CELL_COUNT_HORIZONTAL; ++coord.x){
+            for(coord.y=0; coord.y<game_logic::constants::CELL_COUNT_VERTICAL; ++coord.y){
                 Item* const item{game_logic::game::grid->peek(coord)};
                 if(item!=nullptr && item->colour!=game_logic::items::Item::RAINBOW && item->state().isBreakable()){
                     breakSites.push_back(coord);

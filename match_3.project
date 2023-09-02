@@ -4,6 +4,10 @@
   <Description/>
   <Dependencies/>
   <VirtualDirectory Name="src">
+    <File Name="constants_init.cpp"/>
+    <File Name="constants_grid.h"/>
+    <File Name="constants_colour_count.h"/>
+    <File Name="constants_window.h"/>
     <File Name="rgb_union.h"/>
     <File Name="render.cpp"/>
     <File Name="render.h"/>
@@ -31,7 +35,6 @@
     <File Name="asset_store.h"/>
     <File Name="asset_management.cpp"/>
     <File Name="asset_management.h"/>
-    <File Name="constants.h"/>
     <File Name="window_admin.cpp"/>
     <File Name="window_admin.h"/>
     <File Name="main.cpp"/>

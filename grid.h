@@ -1,8 +1,9 @@
 #pragma once
 
 #include "item.h"
-#include "constants.h"
 #include "coordinate.h"
+
+#include "constants_grid.h"
 
 using game_logic::items::Item;
 using game_logic::items::Coord;
@@ -10,7 +11,7 @@ using game_logic::items::Coord;
 namespace game_logic{
     class Grid{
     private:
-        Item* items[util::constants::CELL_COUNT_HORIZONTAL][util::constants::CELL_COUNT_VERTICAL];
+        Item* items[game_logic::constants::CELL_COUNT_HORIZONTAL][game_logic::constants::CELL_COUNT_VERTICAL];
     public:
         Grid();
         ~Grid();

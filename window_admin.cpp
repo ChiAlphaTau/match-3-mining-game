@@ -1,14 +1,17 @@
 #include "window_admin.h"
 
-#include "constants.h"
+#include "constants_window.h"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
 #include <iostream>
 
-using namespace util::constants;
+using namespace program::constants;
 using std::cout;
+#ifndef NEWLINE
+#define NEWLINE '\n'
+#endif
 
 namespace program{
     SDL_Window* window=NULL;

@@ -2,7 +2,6 @@
 
 #include "effect.h"
 #include "game.h"
-#include "constants.h"
 #include "render.h"
 
 using game_logic::items::Direction;

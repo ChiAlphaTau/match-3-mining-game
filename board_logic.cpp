@@ -2,10 +2,12 @@
 
 #include "game.h"
 #include "coordinate.h"
-#include "constants.h"
 #include "falling.h"
 #include "item_vanilla.h"
 #include "item_specials.h"
+
+#include "constants_grid.h"
+#include "constants_colour_count.h"
 
 #include <vector>
 #include <iostream>//TODO:remove this and get rid of item matching console messages.
@@ -15,8 +17,7 @@ using game_logic::items::Coord;
 using game_logic::items::Direction;
 typedef game_logic::items::Item::Colour Colour;
 using game_logic::items::ItemState;
-using util::constants::CELL_COUNT_HORIZONTAL;
-using util::constants::CELL_COUNT_VERTICAL;
+using namespace game_logic::constants;
 
 namespace game_logic::game::board_update{
     class Consecutive{
@@ -224,7 +225,7 @@ namespace game_logic::game::board_update{
         game_logic::items::Coord bottomCoord{x,count-1};
         std::vector<Item*> spawned{};
         for(int i=0; i<count; ++i){
-            spawned.push_back(new game_logic::items::ItemVanilla(game_logic::items::colourFromInt((i+x)%util::constants::NUMBER_OF_COLOURS)));//TODO:Make colour random.
+            spawned.push_back(new game_logic::items::ItemVanilla(game_logic::items::colourFromInt((i+x)%NUMBER_OF_COLOURS)));//TODO:Make colour random.
         }
         pushEffect(new game_logic::effects::Fall(bottomCoord,count,spawned));
     }

@@ -1,9 +1,9 @@
 #include "coordinate.h"
 
-#include "constants.h"
+#include "constants_grid.h"
 
-using util::constants::CELL_COUNT_HORIZONTAL;
-using util::constants::CELL_COUNT_VERTICAL;
+using game_logic::constants::CELL_COUNT_HORIZONTAL;
+using game_logic::constants::CELL_COUNT_VERTICAL;
 
 
 namespace game_logic::items{

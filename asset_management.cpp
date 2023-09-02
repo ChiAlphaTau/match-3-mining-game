@@ -1,20 +1,17 @@
 #include "asset_management.h"
 #include "asset_store.h"
 #include "window_admin.h"
-#include "constants.h"
 
 #include <string>
 #include <iostream>
 
-using std::cout;
-
 namespace assets{
-    namespace store{
+    namespace store::textures{
         SDL_Texture* tiles=NULL;
     }
     
     namespace management{
-        using namespace assets::store;
+        using namespace assets::store::textures;
         
         bool loadTexture(const std::string& fileName, SDL_Texture*& texture);
         void freeTexture(SDL_Texture*& texture);
@@ -32,7 +29,7 @@ namespace assets{
         bool loadTexture(const std::string& fileName, SDL_Texture*& texture){
             texture = IMG_LoadTexture(program::renderer,fileName.c_str());
             if(texture==NULL){
-                cout << "Couldn't load texture from '" << fileName << "'. Error: '" << IMG_GetError() << "'." << NEWLINE;
+                std::cout << "Couldn't load texture from '" << fileName << "'. Error: '" << IMG_GetError() << "'.\n";
                 return false;
             }
             return true;

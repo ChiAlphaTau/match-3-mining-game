@@ -1,5 +1,4 @@
 #include "window_admin.h"
-#include "constants.h"
 #include "asset_management.h"
 #include "game.h"
 
@@ -9,17 +8,17 @@ using std::cout;
 
 int main(int argc, char **argv){
     if(!program::setupWindow()){
-        cout << "Program setup failed; aborting." << NEWLINE;
+        cout << "Program setup failed; aborting.\n";
         return 1;
     }
 
     if(!assets::management::load()){
-        cout << "Asset loading failed; aborting." << NEWLINE;
+        cout << "Asset loading failed; aborting.\n";
         return 2;
     }
 
     if(!game_logic::game::setup()){
-        cout << "Couldn't setup game; aborting." << NEWLINE;
+        cout << "Couldn't setup game; aborting.\n";
         return 3;
     }
 

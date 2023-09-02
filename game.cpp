@@ -1,19 +1,23 @@
 #include "game.h"
 
 #include "window_admin.h"
-#include "constants.h"
 #include "coordinate.h"
 #include "swap.h"
 #include "item_vanilla.h"
 #include "board_logic.h"
+
+#include "constants_colour_count.h"
+#include "constants_grid.h"
+#include "constants_window.h"
 
 #include <SDL2/SDL.h>
 
 #include <vector>
 #include <iterator>
 
-using namespace util::constants;
 using game_logic::effects::Effect;
+using namespace game_logic::constants;
+using program::constants::CELL_LENGTH;
 
 namespace game_logic::game{
     Grid* grid;//TODO: Why was I getting double deletes or something when I tried using a Grid intead of Grid*?
@@ -38,7 +42,7 @@ namespace game_logic::game{
         grid=new Grid();
         for(Coord coord{0,0}; coord.x<CELL_COUNT_HORIZONTAL; ++coord.x){
             for(coord.y=0; coord.y<CELL_COUNT_VERTICAL; ++coord.y){
-                grid->give(coord,new game_logic::items::ItemVanilla{items::colourFromInt((coord.x+(coord.y%2))%util::constants::NUMBER_OF_COLOURS)});
+                grid->give(coord,new game_logic::items::ItemVanilla{items::colourFromInt((coord.x+(coord.y%2))%NUMBER_OF_COLOURS)});
             }
         }
 

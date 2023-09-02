@@ -1,25 +1,28 @@
 #include "grid.h"
 
+#include "constants_grid.h"
+#include "constants_colour_count.h"
+
 namespace game_logic{
     items::Item::Colour items::colourFromInt(const int val){//TODO:Move elsewhere, probably.
-        if(val<util::constants::NUMBER_OF_COLOURS){
+        if(val<game_logic::constants::NUMBER_OF_COLOURS){
             return static_cast<items::Item::Colour>(val);
         }
         return items::Item::RAINBOW;//Maybe throw error instead?
     }
     Grid::Grid(){
-        for(int i=0; i<util::constants::CELL_COUNT_HORIZONTAL; ++i){
-            for(int j=0; j<util::constants::CELL_COUNT_VERTICAL; ++j){
-                items[i][j] = NULL;
+        for(int i=0; i<game_logic::constants::CELL_COUNT_HORIZONTAL; ++i){
+            for(int j=0; j<game_logic::constants::CELL_COUNT_VERTICAL; ++j){
+                items[i][j] = nullptr;
             }
         }
     }
     Grid::~Grid(){
-        for(int i=0; i<util::constants::CELL_COUNT_HORIZONTAL; ++i){
-            for(int j=0; j<util::constants::CELL_COUNT_VERTICAL; ++j){
-                if(items[i][j]!=NULL){
+        for(int i=0; i<game_logic::constants::CELL_COUNT_HORIZONTAL; ++i){
+            for(int j=0; j<game_logic::constants::CELL_COUNT_VERTICAL; ++j){
+                if(items[i][j]!=nullptr){
                     delete items[i][j];
-                    items[i][j]=NULL;
+                    items[i][j]=nullptr;
                 }
             }
         }
@@ -29,17 +32,17 @@ namespace game_logic{
     }
     Item* Grid::claim(Coord const& coord){
         Item* returned=items[coord.x][coord.y];
-        items[coord.x][coord.y] = NULL;
+        items[coord.x][coord.y] = nullptr;
         return returned;
     }
     void Grid::destroy(Coord const& coord){
-        if(items[coord.x][coord.y]!=NULL){
+        if(items[coord.x][coord.y]!=nullptr){
             delete items[coord.x][coord.y];
-            items[coord.x][coord.y]=NULL;
+            items[coord.x][coord.y]=nullptr;
         }
     }
     void Grid::give(Coord const& coord, Item* item){
-        if(items[coord.x][coord.y]!=NULL){
+        if(items[coord.x][coord.y]!=nullptr){
             destroy(coord);
         }
         items[coord.x][coord.y]=item;
