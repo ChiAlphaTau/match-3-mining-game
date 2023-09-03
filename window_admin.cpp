@@ -14,8 +14,8 @@ using std::cout;
 #endif
 
 namespace program{
-    SDL_Window* window=NULL;
-    SDL_Renderer* renderer=NULL;
+    SDL_Window* window=nullptr;
+    SDL_Renderer* renderer=nullptr;
 
     bool setupWindow(){
         if(SDL_Init(SDL_INIT_VIDEO)<0){
@@ -24,13 +24,13 @@ namespace program{
         }
 
         window=SDL_CreateWindow("Match 3",640,0,WINDOW_WIDTH,WINDOW_HEIGHT,SDL_WINDOW_SHOWN);
-        if(window==NULL){
+        if(window==nullptr){
             cout << "Could not load window. Error:'" << SDL_GetError() << NEWLINE;
             return false;
         }
 
         renderer = SDL_CreateRenderer(window,-1,SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-        if(renderer==NULL){
+        if(renderer==nullptr){
             cout << "Could not create renderer. Error:'" << SDL_GetError() << NEWLINE;
             return false;
         }
@@ -45,8 +45,8 @@ namespace program{
     }
     
     void close(){
-        SDL_DestroyRenderer(renderer);renderer=NULL;
-        SDL_DestroyWindow(window);window=NULL;
+        SDL_DestroyRenderer(renderer);renderer=nullptr;
+        SDL_DestroyWindow(window);window=nullptr;
         
         IMG_Quit();
         SDL_Quit();

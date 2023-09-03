@@ -7,7 +7,7 @@
 
 namespace assets{
     namespace store::textures{
-        SDL_Texture* tiles=NULL;
+        SDL_Texture* tiles=nullptr;
     }
     
     namespace management{
@@ -28,16 +28,16 @@ namespace assets{
         
         bool loadTexture(const std::string& fileName, SDL_Texture*& texture){
             texture = IMG_LoadTexture(program::renderer,fileName.c_str());
-            if(texture==NULL){
+            if(texture==nullptr){
                 std::cout << "Couldn't load texture from '" << fileName << "'. Error: '" << IMG_GetError() << "'.\n";
                 return false;
             }
             return true;
         }
         void freeTexture(SDL_Texture*& texture){
-            if(texture!=NULL){
+            if(texture!=nullptr){
                 SDL_DestroyTexture(texture);
-                texture=NULL;
+                texture=nullptr;
             }
         }
     }

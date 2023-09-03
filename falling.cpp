@@ -39,7 +39,7 @@ namespace game_logic::effects{
     }
     Fall::~Fall(){
         for(Item* item:items){
-            if(item!=NULL){//Shouldn't contain NULL entries, but just in case.
+            if(item!=nullptr){//Shouldn't contain null entries, but just in case.
                 delete item;
                 //Possibly should null items entry, but vector is about to be cleared so ~no need.
             }

@@ -114,7 +114,7 @@ namespace game_logic::game::board_update{
         while(true){
             Coord checking{start};
             while(checking<forward){//While the cell that you are checking has at least one cell after it.
-                while(grid->peek(checking)==NULL){//Find the next non-null grid entry in this column. If no more exist, then continue outer for.
+                while(grid->peek(checking)==nullptr){//Find the next non-null grid entry in this column. If no more exist, then continue outer for.
                     if(checking<forward)   checking+=forward;
                     else                    goto nextSidewaysLoopIteration;
                 }
@@ -194,7 +194,7 @@ namespace game_logic::game::board_update{
         Coord head{x,CELL_COUNT_VERTICAL-1};
 
         //Skip past the bottom non-null entries, returning 0 if there are no falls.
-        while(grid->peek(head)!=NULL){
+        while(grid->peek(head)!=nullptr){
             if(head<Direction::UP)  head+=Direction::UP;
             else                    return 0;
         }
@@ -208,13 +208,13 @@ namespace game_logic::game::board_update{
                 ++fall;
                 if(head<Direction::UP)  head+=Direction::UP;
                 else                    return fall;
-            } while(grid->peek(head)==NULL);
+            } while(grid->peek(head)==nullptr);
             //Then gather together the consecutive (non-null) items.
             do{
                 claimed.push_back(grid->claim(head));
                 if(head<Direction::UP)  head+=Direction::UP;
                 else                    {hitTopWhichIsNotNull=true; break;}
-            } while(grid->peek(head)!=NULL);
+            } while(grid->peek(head)!=nullptr);
             //Then create a fall out of those gathered items.
             pushEffect(new game_logic::effects::Fall(game_logic::items::Coord(x,destinationY),fall,claimed));
             claimed.clear();
@@ -273,7 +273,7 @@ namespace game_logic::game::board_update{
         if(location<direction){
             location += direction;
             Item const* item=grid->peek(location);
-            if(item!=NULL){
+            if(item!=nullptr){
                 if((item->state()==ItemState::CAN_BE_MATCHED_IN_GRID)&&item->colour == colour){
                     return true;
                 }

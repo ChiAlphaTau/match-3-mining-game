@@ -112,7 +112,7 @@ namespace game_logic::game{
         for(Coord coord{0,0}; coord.x<CELL_COUNT_HORIZONTAL; ++coord.x){
             for(coord.y=0; coord.y<CELL_COUNT_VERTICAL; ++coord.y){
                 item=grid->peek(coord);
-                if(item==NULL)continue;
+                if(item==nullptr)continue;
                 item->draw(dt,coord);
             }
         }
@@ -185,7 +185,7 @@ namespace game_logic::game{
             if(selected){
                 game_logic::items::Direction movementDirection = clickedCoord-selectionPosition;
                 if(movementDirection!=game_logic::items::Direction::NONE){
-                    if(grid->peek(selectionPosition)!=NULL && grid->peek(clickedCoord)!=NULL){
+                    if(grid->peek(selectionPosition)!=nullptr && grid->peek(clickedCoord)!=nullptr){
                         makeSwap(selectionPosition,movementDirection);
                         selectionPosition=clickedCoord;
                     }
@@ -252,7 +252,7 @@ namespace game_logic::game{
     bool isSwapLegalInSingleDirection(Coord const origin, game_logic::items::Direction direction){
         using board_update::moveInThatDirectionAndReportWhetherItIsTheSameColour;
         Item const* item=grid->peek(origin);//Origin is where the item came from.
-        if(item==NULL)return false;
+        if(item==nullptr)return false;
         game_logic::items::Item::Colour const colour = item->colour;
         Coord const start=origin+direction;//STart is where item is going, so where match checks are from.
         Coord checking{start};

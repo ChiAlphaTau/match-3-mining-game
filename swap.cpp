@@ -32,7 +32,7 @@ namespace game_logic::effects{
         if(progress>=2*SWAP_TIME){//If done swapping, put the items back to where they were.
             for(int i=0;i<2;++i){
                 game_logic::game::grid -> give(startingCoords[i],items[i]);
-                items[i]=NULL;
+                items[i]=nullptr;
             }
             return Effect::DONE;
         }
@@ -75,9 +75,9 @@ namespace game_logic::effects{
     }
     template <bool SUCCESSFUL> Swap<SUCCESSFUL>::~Swap(){
         for(int i=0;i<2;++i){
-            if(items[i]!=NULL){
+            if(items[i]!=nullptr){
                 delete items[i];
-                items[i]=NULL;
+                items[i]=nullptr;
             }
         }
     }
