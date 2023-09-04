@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SDL2/SDL.h>//To get access to Uint8, Uint32.
+#include "SDL.h"//To get access to Uint8, Uint32.
 
 namespace render::types{
     union RGB{

@@ -10,7 +10,7 @@
 #include "constants_grid.h"
 #include "constants_window.h"
 
-#include <SDL2/SDL.h>
+#include "SDL.h"
 
 #include <vector>
 #include <iterator>

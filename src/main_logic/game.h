@@ -3,7 +3,7 @@
 #include "grid.h"
 #include "effect.h"
 
-#include <SDL2/SDL.h>
+#include "SDL.h"
 
 namespace game_logic{
     namespace game{

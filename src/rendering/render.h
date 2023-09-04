@@ -4,7 +4,7 @@
 #include "coordinate.h"
 #include "item.h"
 
-#include <SDL2/SDL.h>
+#include "SDL.h"
 
 namespace render{
     void tintTilesBy(types::RGB const rgb);

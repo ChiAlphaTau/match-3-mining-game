@@ -30,5 +30,5 @@ target_include_directories(match3Lib PUBLIC
 )
 
 #Make it so that the that library searches for the SDL2 includes and links to the SDL2 libraries.
-target_include_directories(match3Lib PRIVATE "${SDL2_INCLUDE_DIRS}" "${SDL2_IMAGE_INCLUDE_DIRS}")
-target_link_libraries(match3Lib PRIVATE "${SDL2_LIBRARIES}" "${SDL2_IMAGE_LIBRARIES}")
+target_include_directories(match3Lib PUBLIC "${SDL2_INCLUDE_DIRS}" "${SDL2_IMAGE_INCLUDE_DIRS}")
+target_link_libraries(match3Lib PUBLIC "${SDL2_LIBRARIES}" "${SDL2_IMAGE_LIBRARIES}")
