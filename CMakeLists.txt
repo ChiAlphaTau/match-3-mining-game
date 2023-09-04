@@ -17,20 +17,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 #Add the cmake directory to the places cmake looks for modules in.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
+#Find the 2 SDL2 libraries.
+find_package(SDL2 REQUIRED)
+find_package(SDL2_image REQUIRED)
+
 #Add an executable that runs the main in main.cpp.
 add_executable(match-3 src/main.cpp)
 
 #Add configurations from in a subdirectory.
 add_subdirectory(src)
 
-#The executable should look for includes in the source code directory, and link to the library corresponding to that code.
-target_include_directories(match-3 PUBLIC "${PROJECT_SOURCE_DIR}/src")
+#The executable should link to the library corresponding to the rest of the code.
 target_link_libraries(match-3 PUBLIC match3Lib)
-
-#Find the 2 SDL2 libraries.
-find_package(SDL2 REQUIRED)
-find_package(SDL2_image REQUIRED)
-
-#And make it so that the executable searches for the SDL2 includes and links to the SDL2 libraries.
-target_include_directories(match-3 PRIVATE "${SDL2_INCLUDE_DIRS}" "${SDL2_IMAGE_INCLUDE_DIRS}")
-target_link_libraries(match-3 PRIVATE "${SDL2_LIBRARIES}" "${SDL2_IMAGE_LIBRARIES}")
