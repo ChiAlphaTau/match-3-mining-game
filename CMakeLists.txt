@@ -10,8 +10,9 @@ cmake_minimum_required(VERSION 3.18.4)
 #Name the project.
 project(match_3)
 
-#Say which version of c++ is required (these 2 lines are from {https://cmake.org/cmake/help/latest/guide/tutorial/A%20Basic%20Starting%20Point.html#exercise-2-specifying-the-c-standard}; I used the same version of C++ as them).
-set(CMAKE_CXX_STANDARD 11)
+#Say which version of c++ is required (these 2 lines are from {https://cmake.org/cmake/help/latest/guide/tutorial/A%20Basic%20Starting%20Point.html#exercise-2-specifying-the-c-standard})
+#I chose C++ 17 as clangd complained about nested namespace definitions being a C++17 feature when I had it set to C++11 like in the above link.
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 #Add the cmake directory to the places cmake looks for modules in.
